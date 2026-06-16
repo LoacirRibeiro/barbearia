@@ -13,9 +13,18 @@
 
 <body class="bg-zinc-950 text-zinc-100 font-sans selection:bg-[#D4AF37] selection:text-black">
 
-    <header class="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-            <a href="/" class="text-2xl font-black tracking-widest uppercase">Barber<span class="text-[#D4AF37]">Co.</span></a>
+   <header class="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur sticky top-0 z-50">
+        {{-- Aumentamos a altura do container de h-20 para h-32 --}}
+        <div class="max-w-6xl mx-auto px-4 h-32 flex items-center justify-between">
+
+            <!-- <a href="/" class="text-2xl font-black tracking-widest uppercase">Barber<span class="text-[#D4AF37]">Co.</span></a> -->
+            
+            <a href="/" class="flex items-center h-full py-2">
+                {{-- Ajustamos para h-28 (112px) para que a logo fique grande, mas tenha um leve respiro nas bordas --}}
+                <img src="{{ asset('images/logo coxxas.png') }}" 
+                    alt="BarberCo. Logo" 
+                    class="h-28 w-auto object-contain hover:opacity-90 transition-opacity">
+            </a>
             
             <div class="flex items-center space-x-4">
                 @auth
@@ -44,6 +53,20 @@
             </div>
         </div>
     </header>
+
+    {{-- ✨ NOVA SEÇÃO EXCLUSIVA PARA A LOGO CENTRALIZADA (PREFERÊNCIA DO CLIENTE) ✨ --}}
+    <div class="w-full pt-20 pb-6 flex items-center justify-center bg-zinc-950">
+        <div class="flex flex-col items-center">
+            <a href="/" class="block transform hover:scale-102 transition-transform duration-300">
+                {{-- Logo robusta e centralizada --}}
+                <img src="{{ asset('images/logo coxxas.png') }}" 
+                     alt="BarberCo. Logo" 
+                     class="h-56 md:h-72 w-auto object-contain">
+            </a>
+            {{-- Divisor sutil opcional abaixo da logo --}}
+            <div class="w-70 h-[1px] bg-zinc-800 mt-2"></div>
+        </div>
+    </div>
 
     <section class="relative min-h-[70vh] flex items-center justify-center text-center px-4 py-20 bg-radial from-zinc-900 to-zinc-950">
         <div class="max-w-3xl">
