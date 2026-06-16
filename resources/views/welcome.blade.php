@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,9 +18,9 @@
             <a href="/" class="text-2xl font-black tracking-widest uppercase">Barber<span class="text-[#D4AF37]">Co.</span></a>
             
             <div class="flex items-center space-x-4">
-
                 @auth
-                    @if(auth()->user()->hasRole('admin')) <a href="{{ route('admin.painel') }}" class="bg-[#D4AF37] text-black text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest hover:bg-yellow-500 transition shadow-lg shadow-yellow-500/20">
+                    @if(auth()->user()->hasRole('admin')) 
+                        <a href="{{ route('admin.painel') }}" class="bg-[#D4AF37] text-black text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest hover:bg-yellow-500 transition shadow-lg shadow-yellow-500/20">
                             <i class="la la-cog"></i> Painel Administrativo
                         </a>
                     @endif
@@ -31,10 +31,6 @@
                         Entrar
                     </a>
                 @endguest
-
-                <!-- <a href="{{ route('agendar.form') }}" class="bg-[#D4AF37] text-black font-bold px-6 py-2.5 rounded text-sm uppercase tracking-wider hover:bg-yellow-500 transition shadow-lg shadow-yellow-500/10">
-                    Agendar Horário
-                </a> -->
 
                 @auth
                     <span class="text-sm text-zinc-400 hidden sm:inline">Olá, <span class="text-[#D4AF37] font-bold">{{ auth()->user()->name }}</span></span>
@@ -84,10 +80,8 @@
         </div>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-            
             @foreach($servicosHome as $categoria => $listaServicos)
                 <div class="{{ $categoria === 'Combo' ? 'bg-zinc-900 border-2 border-[#D4AF37]/50 shadow-xl shadow-yellow-500/5 relative overflow-hidden' : 'bg-zinc-900/50 border border-zinc-800' }} p-5 rounded-xl flex flex-col justify-between">
-                    
                     @if($categoria === 'Combo')
                         <span class="absolute top-0 right-0 bg-[#D4AF37] text-black text-[9px] font-black uppercase px-3 py-1 tracking-widest rounded-bl">Melhor Custo</span>
                     @endif
@@ -108,20 +102,17 @@
                                             R$ {{ number_format($item->preco, 2, ',', '.') }}
                                         </span>
                                     </div>
-                                    </li>
+                                </li>
                             @endforeach
                         </ul>
                     </div>
                 </div>
             @endforeach
-
         </div>
     </section>
 
-    {{-- Verifica se o usuário tem uma assinatura ativa --}}
     @if($minhaAssinatura)
         <div class="max-w-xl mx-auto mb-12 p-6 bg-zinc-900 border border-[#D4AF37] rounded-2xl shadow-xl shadow-yellow-500/5 relative overflow-hidden">
-            
             <span class="absolute top-0 right-0 bg-emerald-500 text-zinc-950 text-[9px] font-black uppercase px-4 py-1.5 tracking-widest rounded-bl flex items-center gap-1">
                 <span class="w-1.5 h-1.5 bg-zinc-950 rounded-full animate-ping"></span>
                 Assinatura Ativa
@@ -136,7 +127,6 @@
                     <h4 class="text-lg font-black uppercase tracking-wide text-zinc-100 pr-24">
                         {{ $minhaAssinatura->plano->nome }}
                     </h4>
-                    
                     <p class="text-xs text-zinc-400 mt-2">
                         Sua assinatura renova ou expira em: 
                         <span class="text-zinc-200 font-mono font-bold">
@@ -158,14 +148,12 @@
         <div class="text-center mb-16">
             <span class="text-xs font-bold tracking-widest uppercase text-[#D4AF37] block mb-2">Clube de Benefícios</span>
             <h3 class="text-3xl font-black uppercase tracking-wider">Planos de <span class="gold-text">Assinatura</span></h3>
-            <p class="text-zinc-500 mt-2 max-w-md mx-auto text-sm">Corte o cabelo e faça a barba quantas vezes precisar com uma taxa fixa mensal. Economia e estilo andam juntos.</p>
+            <p class="text-zinc-500 mt-2 max-w-md mx-auto text-sm">Corte o cabelo e faça a barra quantas vezes precisar com uma taxa fixa mensal. Economia e estilo andam juntos.</p>
         </div>
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            
             @foreach($planosHome as $plano)
                 <div class="bg-zinc-900/40 border {{ $plano->preco > 100 ? 'border-[#D4AF37] shadow-xl shadow-yellow-500/5 bg-zinc-900/80' : 'border-zinc-800' }} p-8 rounded-2xl flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:scale-[1.02]">
-                    
                     @if($plano->preco > 100)
                         <span class="absolute top-0 right-0 bg-[#D4AF37] text-black text-[9px] font-black uppercase px-4 py-1.5 tracking-widest rounded-bl">Mais Vantajoso</span>
                     @endif
@@ -207,7 +195,6 @@
                     </a>
                 </div>
             @endforeach
-
         </div>
     </section>
 
@@ -240,30 +227,44 @@
         <p>&copy; 2026 BarberCo. Todos os direitos reservados.</p>
     </footer>
 
-   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-   <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            // 🟢 Alerta de Sucesso
+            // 🚀 CORREÇÃO DA ÂNCORA ULTRA-PRECISA (Para Tailwind v4)
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Verifica se veio com a hash #planos OU com o parâmetro ?scroll=planos
+            if (window.location.hash === '#planos' || urlParams.get('scroll') === 'planos') {
+                setTimeout(() => {
+                    const secaoPlanos = document.getElementById('planos');
+                    if (secaoPlanos) {
+                        // Rola a tela suavemente até o topo da seção de planos
+                        secaoPlanos.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        
+                        // Limpa a URL visualmente tirando o "?scroll=planos" e mantendo o foco limpo
+                        window.history.pushState({}, document.title, window.location.pathname + '#planos');
+                    }
+                }, 400); // 400ms é o tempo ideal para o motor do Tailwind v4 calcular o grid de planos
+            }
+
+            // --- ALERTAS SWEETALERT ---
             @if(session('sucesso'))
                 Swal.fire({
                     title: '✨ Sucesso!',
                     text: "{{ session('sucesso') }}",
                     icon: 'success',
-                    timer: 3000, // 3 segundos
-                    timerProgressBar: true, // Mostra a barrinha de tempo correndo
-                    showConfirmButton: false, // Não precisa de botão para fechar
-                    background: '#18181b', // bg-zinc-900 do Tailwind
-                    color: '#f4f4f5', // text-zinc-100 do Tailwind
-                    iconColor: '#10b981', // Verde esmeralda para combinar
-                    customClass: {
-                        popup: 'border border-zinc-800 rounded-2xl'
-                    }
+                    timer: 3000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    background: '#18181b',
+                    color: '#f4f4f5',
+                    iconColor: '#10b981',
+                    customClass: { popup: 'border border-zinc-800 rounded-2xl' }
                 });
             @endif
 
-            // 🔴 Alerta de Erro
             @if($errors->any())
                 Swal.fire({
                     title: 'Atenção!',
@@ -275,19 +276,16 @@
                         </ul>
                     `,
                     icon: 'error',
-                    timer: 4000, // Erros ficam 4 segundos para dar tempo de ler
+                    timer: 4000,
                     timerProgressBar: true,
                     showConfirmButton: false,
                     background: '#18181b',
                     color: '#f4f4f5',
-                    iconColor: '#f43f5e', // Rosa/Vermelho do Tailwind
-                    customClass: {
-                        popup: 'border border-zinc-800 rounded-2xl'
-                    }
+                    iconColor: '#f43f5e',
+                    customClass: { popup: 'border border-zinc-800 rounded-2xl' }
                 });
             @endif
         });
     </script>
-
 </body>
 </html>

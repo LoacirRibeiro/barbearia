@@ -61,12 +61,24 @@
             <form action="{{ route('agendar.salvar') }}" method="POST" class="space-y-6">
                 @csrf
 
+                {{-- Inicializa as variáveis de controle fora do bloco para evitar quebras no escopo --}}
+                @php
+                    $isAtivo = false;
+                    $isPendente = false;
+                    
+                    if ($minhaAssinatura) {
+                        // 1. Um plano está ATIVO se o status for 'Ativo' e a data fim for no futuro
+                        $isAtivo = $minhaAssinatura->status === 'Ativo' && \Carbon\Carbon::parse($minhaAssinatura->data_fim)->isFuture();
+                        
+                        // 2. Um plano está PENDENTE se o status for 'Pendente' OU se o status_pagamento for 'Pendente'
+                        $isPendente = $minhaAssinatura->status === 'Pendente' || 
+                                    $minhaAssinatura->status_pagamento === 'Pendente' || 
+                                    $minhaAssinatura->status === 'Aguardando Pagamento';
+                    }
+                @endphp
+
                 {{-- Cenário 1: Usuário Logado e possui um histórico de plano --}}
                 @if($minhaAssinatura)
-                    @php
-                        $isAtivo = $minhaAssinatura->status === 'Ativo' && \Carbon\Carbon::parse($minhaAssinatura->data_fim)->isFuture();
-                    @endphp
-
                     @if($isAtivo)
                         <div class="mb-6 p-4 bg-emerald-950/20 border border-emerald-500/40 rounded-xl flex items-center justify-between">
                             <div class="space-y-1">
@@ -84,15 +96,30 @@
                                 </label>
                             </div>
                         </div>
+
+                    @elseif($isPendente)
+                        {{-- Novo Cenário: Aguardando Confirmação do Pagamento --}}
+                        <div class="mb-6 p-4 bg-amber-950/20 border border-amber-500/40 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+                            <div class="space-y-1">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-amber-400 block">Pagamento em Análise</span>
+                                <h4 class="text-xs font-bold text-zinc-200">Sua assinatura do plano <span class="gold-text">{{ $minhaAssinatura->plano->nome }}</span> está quase pronta!</h4>
+                                <p class="text-[11px] text-zinc-400">Estamos aguardando a confirmação do pagamento. Este agendamento seguirá com o valor normal até a ativação.</p>
+                            </div>
+                            <div class="px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-center text-[10px] font-bold text-amber-400 uppercase tracking-wider whitespace-nowrap">
+                                ⏳ Processando
+                            </div>
+                        </div>
+
                     @else
+                        {{-- Cenário de expirado --}}
                         <div class="mb-6 p-4 bg-rose-950/20 border border-rose-900/60 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div class="space-y-1">
                                 <span class="text-[10px] font-black uppercase tracking-widest text-rose-400 block">Assinatura Expirada</span>
                                 <h4 class="text-xs font-bold text-zinc-300">Seu plano <span class="text-zinc-400 line-through">{{ $minhaAssinatura->plano->nome }}</span> venceu.</h4>
                                 <p class="text-[11px] text-zinc-500">Este agendamento seguirá com o valor normal de tabela.</p>
                             </div>
-                            <a href="/#clube-beneficios" class="text-center bg-zinc-950 border border-zinc-800 hover:border-[#D4AF37] text-zinc-300 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition">
-                                🔄 Renovar Plano
+                            <a href="{{ url('/') }}?scroll=planos" class="text-center bg-[#D4AF37] hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition shadow-lg shadow-yellow-500/5">
+                                Renovar Plano
                             </a>
                         </div>
                     @endif
@@ -105,7 +132,7 @@
                             <h4 class="text-xs font-bold text-zinc-200">Quer cortes e barba ilimitados o mês todo?</h4>
                             <p class="text-[11px] text-zinc-500">Faça parte do nosso Clube de Fidelidade VIP.</p>
                         </div>
-                        <a href="/#clube-beneficios" class="text-center bg-[#D4AF37] hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition shadow-lg shadow-yellow-500/5">
+                        <a href="{{ url('/') }}?scroll=planos" class="text-center bg-[#D4AF37] hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider transition shadow-lg shadow-yellow-500/5">
                             💎 Assinar Plano
                         </a>
                     </div>
@@ -177,37 +204,36 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             
-            // Verifica se a página atual recebeu a sessão de sucesso do controlador
+            // 1. Alerta de Sucesso com Redirecionamento
             @if(session('sucesso'))
                 Swal.fire({
                     icon: 'success',
                     title: 'AGENDADO COM SUCESSO!',
                     text: "{{ session('sucesso') }}",
                     confirmButtonText: 'VOLTAR PARA A HOME',
-                    allowOutsideClick: false, // Força o usuário a interagir com o botão
+                    allowOutsideClick: false,
                     customClass: {
                         popup: 'swal2-popup-custom',
                         confirmButton: 'swal2-confirm-custom'
                     }
                 }).then((result) => {
-                    // Quando o cliente clica no botão "VOLTAR PARA A HOME"
                     if (result.isConfirmed) {
-                        window.location.href = "{{ url('/') }}"; // Direciona para a Home
+                        window.location.href = "{{ url('/') }}";
                     }
                 });
             @endif
 
-            // Alerta em caso de erros de validação ou clique duplo
+            // 2. Alerta de Erros de Validação
             @if($errors->any())
                 Swal.fire({
                     icon: 'error',
                     title: 'NÃO FOI POSSÍVEL AGENDAR',
                     html: `<p class="mb-3 text-zinc-400 text-sm">Por favor, corrija os seguintes pontos:</p>
-                           <ul class="text-left list-disc list-inside space-y-1 text-sm text-rose-300">
+                        <ul class="text-left list-disc list-inside space-y-1 text-sm text-rose-300">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
-                           </ul>`,
+                        </ul>`,
                     confirmButtonText: 'ENTENDIDO',
                     customClass: {
                         popup: 'swal2-popup-custom',
@@ -216,71 +242,65 @@
                 });
             @endif
 
-           // --- 🛒 2. LÓGICA DINÂMICA DE PREÇOS NO SELECT (VALIDAÇÃO POR CATEGORIA) ---
+            // 3. LÓGICA DINÂMICA DE PREÇOS NO SELECT
             const togglePlano = document.getElementById('toggle-plano');
             const selectServico = document.getElementById('select-servico');
             
-            // Passa o nome do plano do Blade para o JS
-            const planoUsuario = "{{ $minhaAssinatura && isset($isAtivo) && $isAtivo ? $minhaAssinatura->plano->nome : '' }}";
-            
-            // Salva as informações originais assim que a página carrega
-            const opcoesOriginais = Array.from(selectServico.options).map(opt => {
-                const partes = opt.text.split(/ — | —|— /);
-                return {
-                    value: opt.value,
-                    id: opt.getAttribute('data-id'),
-                    nomeLimpo: partes[0].trim(),
-                    preco: opt.getAttribute('data-preco'),
-                    categoria: opt.getAttribute('data-categoria') ? opt.getAttribute('data-categoria').toLowerCase().trim() : ''
+            // Correção segura da validação do plano ativo no JavaScript
+            const planoUsuario = "{{ ($minhaAssinatura && $isAtivo) ? $minhaAssinatura->plano->nome : '' }}".toLowerCase().trim();
+
+            if (selectServico) {
+                const todasAsOpcoes = Array.from(selectServico.querySelectorAll('option')).filter(opt => opt.value !== "");
+
+                const bancoDeDadosPrecos = {
+                    @foreach($servicosAgrupados as $categoria => $listaServicos)
+                        @foreach($listaServicos as $item)
+                            "{{ $item->id }}": {
+                                nomeOriginal: "{{ $item->nome }}",
+                                precoOriginal: parseFloat("{{ $item->preco }}"),
+                                categoriaOriginal: "{{ $categoria }}".toLowerCase().trim()
+                            },
+                        @endforeach
+                    @endforeach
                 };
-            });
 
-            function atualizarPrecosVisuais() {
-                const usarPlano = togglePlano ? togglePlano.checked : false;
-                const planoTexto = planoUsuario.toLowerCase().trim();
+                function atualizarPrecosVisuais() {
+                    const usarPlano = togglePlano ? togglePlano.checked : false;
 
-                Array.from(selectServico.options).forEach((option, index) => {
-                    if (index === 0) return; 
+                    todasAsOpcoes.forEach(option => {
+                        const dadosItem = bancoDeDadosPrecos[option.value];
+                        if (!dadosItem) return;
 
-                    const infoOriginal = opcoesOriginais[index];
-                    const precoFormatado = parseFloat(infoOriginal.preco).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    
-                    let cobertoPeloPlano = false;
+                        let cobertoPeloPlano = false;
 
-                    if (usarPlano && planoTexto !== '') {
-                        
-                        // REGRA 1: Se o plano for o HAIR VIP, só zera o que for da categoria "Cabelo"
-                        if (planoTexto.includes('hair')) {
-                            if (infoOriginal.categoria === 'cabelo') {
-                                cobertoPeloPlano = true;
-                            }
-                        } 
-                        
-                        // REGRA 2: Se for o VIP CLUB, zera quase tudo (Cabelo, Barba, etc.) menos tratamentos faciais complexos se quiser
-                        else if (planoTexto.includes('club') || planoTexto.includes('vip')) {
-                            // Libera as categorias permitidas para o plano completo
-                            if (['cabelo', 'barba', 'combo'].includes(infoOriginal.categoria)) {
-                                cobertoPeloPlano = true;
+                        if (usarPlano && planoUsuario !== '') {
+                            if (planoUsuario.includes('hair')) {
+                                if (dadosItem.categoriaOriginal === 'cabelo') {
+                                    cobertoPeloPlano = true;
+                                }
+                            } 
+                            else if (planoUsuario.includes('club') || planoUsuario.includes('vip')) {
+                                if (['cabelo', 'barba', 'combo'].includes(dadosItem.categoriaOriginal)) {
+                                    cobertoPeloPlano = true;
+                                }
                             }
                         }
-                    }
 
-                    // Aplica o texto modificado ou o preço normal
-                    if (cobertoPeloPlano) {
-                        option.text = `${infoOriginal.nomeLimpo} — 🎁 GRÁTIS (No Plano)`;
-                    } else {
-                        option.text = `${infoOriginal.nomeLimpo} — ${precoFormatado}`;
-                    }
-                });
-            }
+                        if (cobertoPeloPlano) {
+                            option.text = `${dadosItem.nomeOriginal} — 🎁 GRÁTIS (No Plano)`;
+                        } else {
+                            const precoFormatado = dadosItem.precoOriginal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            option.text = `${dadosItem.nomeOriginal} — ${precoFormatado}`;
+                        }
+                    });
+                }
 
-            // Ativa os gatilhos se o botão de usar plano existir
-            if (togglePlano) {
-                togglePlano.addEventListener('change', atualizarPrecosVisuais);
+                if (togglePlano) {
+                    togglePlano.addEventListener('change', atualizarPrecosVisuais);
+                }
                 atualizarPrecosVisuais();
             }
         });
     </script>
-
 </body>
 </html>

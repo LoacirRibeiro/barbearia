@@ -1,9 +1,21 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - BarberCo.</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* Estilização Dark para o SweetAlert combinar com o design da barbearia */
+        .swal2-popup-dark {
+            background: #09090b !important; /* zinc-950 */
+            border: 1px solid #18181b !important; /* zinc-900 */
+            color: #f4f4f5 !important; /* zinc-100 */
+        }
+    </style>
 </head>
 <body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center px-4">
     <div class="max-w-md w-full bg-zinc-900/50 p-8 rounded-xl border border-zinc-800 shadow-2xl">
@@ -26,5 +38,37 @@
         </form>
         <p class="text-xs text-zinc-500 text-center mt-6">Não tem conta? <a href="{{ route('cadastro') }}" class="text-[#D4AF37] hover:underline font-bold">Cadastre-se</a></p>
     </div>
+
+    @if(session('erro'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops...',
+                text: "{{ session('erro') }}",
+                showConfirmButton: true,
+                confirmButtonColor: '#D4AF37',
+                customClass: {
+                    popup: 'swal2-popup-dark'
+                }
+            });
+        </script>
+    @endif
+
+    @if(session('sucesso'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Muito bem!',
+                text: "{{ session('sucesso') }}",
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'swal2-popup-dark'
+                },
+                iconColor: '#10b981'
+            });
+        </script>
+    @endif
 </body>
 </html>
