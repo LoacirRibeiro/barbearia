@@ -7,6 +7,7 @@ use App\Models\Servico;
 use App\Models\Plano;
 use App\Models\Cliente;
 use App\Models\Assinatura;
+use App\Models\Foto;
 
 class PublicController extends Controller
 {
@@ -22,6 +23,11 @@ class PublicController extends Controller
 
         $planosHome = Plano::where('ativo', true)
             ->orderBy('preco', 'asc')
+            ->get();
+
+        $fotosHome = Foto::where('ativo', true)
+            ->latest()
+            ->take(2)
             ->get();
         
         $minhaAssinatura = null;
@@ -39,7 +45,7 @@ class PublicController extends Controller
             }
         }
 
-        return view('welcome', compact('barbeiros', 'servicosHome', 'planosHome', 'minhaAssinatura'));
+        return view('welcome', compact('barbeiros', 'servicosHome', 'planosHome', 'minhaAssinatura', 'fotosHome'));
     }
 
     public function planos()

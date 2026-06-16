@@ -258,7 +258,7 @@
     <div id="modal-detalhes" class="fixed inset-0 z-50 hidden">
         <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm" onclick="fecharDetalhes()"></div>
         
-        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-zinc-900 border-l border-zinc-800 shadow-2xl p-6 overflow-y-auto flex flex-col justify-between">
+        <div class="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-full max-w-md bg-zinc-900 border-x border-zinc-800 shadow-2xl p-6 overflow-y-auto flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-6">
                     <div>

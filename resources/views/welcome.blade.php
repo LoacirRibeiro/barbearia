@@ -72,6 +72,28 @@
         </div>
     </section>
 
+    {{-- 📸 SEÇÃO DE FOTOS CENTRALIZADA E AMPLIADA --}}
+    <div class="mt-16 w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-8 px-4">
+        @foreach($fotosHome as $foto)
+            {{-- Mudamos para aspect-video para dar mais altura e presença visual --}}
+            <div class="group relative aspect-video overflow-hidden rounded-2xl border border-zinc-800 hover:border-[#D4AF37]/50 transition-all duration-500 shadow-2xl bg-zinc-900/50">
+                
+                <img src="{{ Storage::url($foto->caminho) }}" 
+                    alt="{{ $foto->titulo ?? 'Imagem Barbearia' }}" 
+                    class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500">
+                
+                @if(!empty(trim($foto->titulo)))
+                    {{-- Aumentamos levemente o tamanho do texto para text-sm para acompanhar o tamanho da foto --}}
+                    <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent flex items-end p-6">
+                        <span class="text-sm font-bold uppercase tracking-widest text-zinc-300 group-hover:text-white transition-colors">
+                            {{ $foto->titulo }}
+                        </span>
+                    </div>
+                @endif
+            </div>
+        @endforeach
+    </div>
+
     <section id="servicos" class="max-w-7xl mx-auto px-4 py-24 border-t border-zinc-900">
         <div class="text-center mb-16">
             <span class="text-xs font-bold tracking-widest uppercase text-[#D4AF37] block mb-2">Tabela de Preços</span>
@@ -198,24 +220,46 @@
         </div>
     </section>
 
-    <section id="barbeiros" class="bg-zinc-900/30 py-24 border-t border-zinc-900">
+    <section id="barbeiros" class="bg-zinc-950 py-24 border-t border-zinc-900">
         <div class="max-w-5xl mx-auto px-4">
             <div class="text-center mb-16">
-                <h3 class="text-3xl font-black uppercase tracking-wider">Nossos Especialistas</h3>
+                <h3 class="text-3xl font-black uppercase tracking-wider">Nossos <span class="gold-text">Especialistas</span></h3>
                 <p class="text-zinc-500 mt-2">Escolha o profissional de sua preferência</p>
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
                 @forelse($barbeiros as $barbeiro)
-                    <div class="bg-zinc-900 p-6 rounded border border-zinc-800 text-center">
-                        <div class="w-20 h-20 gold-bg/10 border border-[#D4AF37]/30 rounded-full flex items-center justify-center mx-auto mb-4 text-[#D4AF37] font-bold text-xl uppercase">
-                            {{ substr($barbeiro->nome, 0, 2) }}
+                    <div class="group bg-zinc-900/40 p-4 rounded-2xl border border-zinc-800 text-center flex flex-col items-center hover:border-[#D4AF37]/40 transition-all duration-300 backdrop-blur-sm">
+                        
+                        {{-- Bloco de Foto RETANGULAR/QUADRADO Grande com Cantos Suaves --}}
+                        <div class="w-full aspect-[4/5] mb-5 relative rounded-xl overflow-hidden border border-zinc-800 group-hover:border-[#D4AF37]/50 transition-all duration-500 bg-zinc-950 flex items-center justify-center shadow-2xl">
+                            
+                            {{-- Forçamos o trim para evitar espaços em branco passados pelo banco --}}
+                            @if(!empty(trim($barbeiro->foto)))
+                                <img src="{{ asset(Str::start(trim($barbeiro->foto), 'storage/')) }}" 
+                                    alt="{{ $barbeiro->nome }}" 
+                                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                            @else
+                                {{-- Fallback Minimalista Retangular se realmente não tiver foto --}}
+                                <div class="absolute inset-0 flex flex-col items-center justify-center bg-zinc-900 border border-dashed border-zinc-800 m-2 rounded-lg">
+                                    <span class="text-[#D4AF37] font-black text-3xl uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
+                                        {{ substr($barbeiro->nome, 0, 2) }}
+                                    </span>
+                                    <span class="text-[9px] text-zinc-600 uppercase tracking-wider mt-2">Sem Foto</span>
+                                </div>
+                            @endif
                         </div>
-                        <h4 class="font-bold text-lg text-zinc-200">{{ $barbeiro->nome }}</h4>
-                        <p class="text-xs text-zinc-500 uppercase tracking-widest mt-1">{{ $barbeiro->especialidade ?? 'Barbeiro' }}</p>
+
+                        <h4 class="font-bold text-lg text-zinc-200 group-hover:text-white transition-colors mt-2">{{ $barbeiro->nome }}</h4>
+                        
+                        {{-- Badge moderno para a especialidade --}}
+                        <span class="inline-block mt-3 px-3 py-1 bg-zinc-950 text-[#D4AF37] border border-zinc-800 text-[10px] font-black tracking-widest uppercase rounded-md group-hover:bg-[#D4AF37]/10 group-hover:border-[#D4AF37]/20 transition-all">
+                            {{ $barbeiro->specialidade ?? 'Barbeiro VIP' }}
+                        </span>
+                        
                     </div>
                 @empty
-                    <div class="col-span-full text-center text-zinc-500 py-4">
+                    <div class="col-span-full text-center text-zinc-500 py-12 border border-dashed border-zinc-800 rounded-2xl">
                         Nenhum barbeiro cadastrado no painel administrativo ainda.
                     </div>
                 @endforelse

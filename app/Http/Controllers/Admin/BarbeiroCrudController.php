@@ -56,12 +56,20 @@ class BarbeiroCrudController extends CrudController
     protected function setupCreateOperation()
     {
         CRUD::setValidation(BarbeiroRequest::class);
-        CRUD::setFromDb(); // set fields from db columns.
+        CRUD::setFromDb(); // Configura os campos automaticamente a partir do banco
 
-        /**
-         * Fields can be defined using the fluent syntax:
-         * - CRUD::field('price')->type('number');
-         */
+        // Remove o campo original 'foto' gerado como texto simples para evitar o conflito
+        CRUD::removeField('foto');
+
+        // Adiciona novamente o campo 'foto', mas agora configurado de forma isolada e correta
+        CRUD::addField([
+            'label'      => "Foto do Barbeiro",
+            'name'       => "foto",
+            'type'       => 'upload',
+            'upload'     => true,
+            'disk'       => 'public', 
+            'prefix'     => 'uploads/barbeiros/', 
+        ]);
     }
 
     /**

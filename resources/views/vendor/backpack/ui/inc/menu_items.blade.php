@@ -16,3 +16,4 @@
     <x-backpack::menu-dropdown-item title="Papéis (Roles)" icon="la la-id-badge" :link="backpack_url('role')" />
     <x-backpack::menu-dropdown-item title="Permissões" icon="la la-key" :link="backpack_url('permission')" />
 </x-backpack::menu-dropdown>
+<x-backpack::menu-item title="Fotos" icon="la la-question" :link="backpack_url('foto')" />
