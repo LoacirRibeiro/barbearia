@@ -54,7 +54,7 @@
         </div>
     </header>
 
-    <!-- {{-- ✨ NOVA SEÇÃO EXCLUSIVA PARA A LOGO CENTRALIZADA (PREFERÊNCIA DO CLIENTE) ✨ --}}
+    {{-- ✨ NOVA SEÇÃO EXCLUSIVA PARA A LOGO CENTRALIZADA (PREFERÊNCIA DO CLIENTE) ✨ --}}
     <div class="w-full pt-20 pb-6 flex items-center justify-center bg-zinc-950">
         <div class="flex flex-col items-center">
             <a href="/" class="block transform hover:scale-102 transition-transform duration-300">
@@ -66,7 +66,7 @@
             {{-- Divisor sutil opcional abaixo da logo --}}
             <div class="w-70 h-[1px] bg-zinc-800 mt-2"></div>
         </div>
-    </div> -->
+    </div>
 
     <section class="relative min-h-[70vh] flex items-center justify-center text-center px-4 py-20 bg-radial from-zinc-900 to-zinc-950">
         <div class="max-w-3xl">
