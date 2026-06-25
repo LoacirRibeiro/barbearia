@@ -8,6 +8,10 @@ use App\Http\Controllers\AssinaturaController;  // 🚀 Adicionado
 use App\Http\Controllers\AdminController;       // 🚀 Adicionado
 use App\Http\Controllers\Admin\EstoqueController;
 use App\Http\Controllers\Admin\CaixaBalcaoController;
+use App\Http\Controllers\Admin\PagamentoController; 
+use App\Http\Controllers\Admin\PainelController;
+use App\Http\Controllers\Admin\CaixaRelatorioController;
+use App\Http\Controllers\Admin\CaixaGestaoController;
 
 // Rota da Página Inicial Pública
 Route::get('/', [PublicController::class, 'index']);
@@ -52,7 +56,8 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->prefix('admin')->group(function () {
     
     // Painel Principal e Agenda (Apontando para AdminController)
-    Route::get('/painel', [AdminController::class, 'painelAdmin'])->name('admin.painel');
+    // Route::get('/painel', [AdminController::class, 'painelAdmin'])->name('admin.painel');
+    Route::get('/painel', [PainelController::class, 'index'])->name('admin.painel');
     Route::get('/agenda', [AdminController::class, 'agendaAdmin'])->name('admin.agenda');
     Route::patch('/agendamentos/{id}/concluir', [AdminController::class, 'concluirAgendamento'])->name('admin.agendamentos.concluir');
 
@@ -83,11 +88,11 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/admin/relatorio-mensal', [CaixaRelatorioController::class, 'relatorioMensal'])->name('admin.relatorio_mensal');
     Route::get('/admin/caixa/dados-fechamento', [CaixaGestaoController::class, 'dadosFechamento'])->name('admin.caixa.dados_fechamento');
     // Gestão de Colaboradores 
-    // Route::get('/admin/colaboradores', [PainelController::class, 'colaboradores'])->name('admin.colaboradores');
+    Route::get('/admin/colaboradores', [PainelController::class, 'colaboradores'])->name('admin.colaboradores');
 
-    // Route::post('/admin/colaboradores/pagar', [PagamentoController::class, 'registrarPagamento'])->name('admin.pagamentos.store');
+    Route::post('/admin/colaboradores/pagar', [PagamentoController::class, 'registrarPagamento'])->name('admin.pagamentos.store');
 
-    // Route::get('/admin/colaboradores/evolucao', [PainelController::class, 'evolucao'])->name('admin.colaboradores.evolucao');
+    Route::get('/admin/colaboradores/evolucao', [PainelController::class, 'evolucao'])->name('admin.colaboradores.evolucao');
 
     Route::post('/estoque/baixa/{id}', [EstoqueController::class, 'darBaixa'])->name('admin.estoque.darBaixa');
 });

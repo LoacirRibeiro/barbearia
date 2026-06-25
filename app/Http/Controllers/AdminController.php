@@ -18,100 +18,100 @@ class AdminController extends Controller
     //     $this->middleware('auth'); // Protege todos os métodos do painel admin
     // }
 
-    public function painelAdmin(Request $request)
-    {
-        $diaInput = $request->input('dia_especifico');
-        if ($diaInput) {
-            $diaSelecionado = Carbon::createFromFormat('d/m/Y', $diaInput)->toDateString();
-            $diaSelecionadoFormatado = $diaInput;
-        } else {
-            $diaSelecionado = now()->toDateString();
-            $diaSelecionadoFormatado = now()->format('d/m/Y');
-        }
+    // public function painelAdmin(Request $request)
+    // {
+    //     $diaInput = $request->input('dia_especifico');
+    //     if ($diaInput) {
+    //         $diaSelecionado = Carbon::createFromFormat('d/m/Y', $diaInput)->toDateString();
+    //         $diaSelecionadoFormatado = $diaInput;
+    //     } else {
+    //         $diaSelecionado = now()->toDateString();
+    //         $diaSelecionadoFormatado = now()->format('d/m/Y');
+    //     }
 
-        $mesAnoInput = $request->input('mes_ano'); 
-        if ($mesAnoInput) {
-            $carbonMes = Carbon::createFromFormat('m/Y', $mesAnoInput);
-            $dataInicial = $carbonMes->startOfMonth()->toDateString();
-            $dataFinal = $carbonMes->endOfMonth()->toDateString();
-        } else {
-            $dataInicial = now()->startOfMonth()->toDateString();
-            $dataFinal = now()->endOfMonth()->toDateString();
-        }
+    //     $mesAnoInput = $request->input('mes_ano'); 
+    //     if ($mesAnoInput) {
+    //         $carbonMes = Carbon::createFromFormat('m/Y', $mesAnoInput);
+    //         $dataInicial = $carbonMes->startOfMonth()->toDateString();
+    //         $dataFinal = $carbonMes->endOfMonth()->toDateString();
+    //     } else {
+    //         $dataInicial = now()->startOfMonth()->toDateString();
+    //         $dataFinal = now()->endOfMonth()->toDateString();
+    //     }
 
-        $financeiroDiaQuery = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
-            ->whereDate('agendamentos.data_hora', $diaSelecionado);
+    //     $financeiroDiaQuery = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
+    //         ->whereDate('agendamentos.data_hora', $diaSelecionado);
 
-        $financeiroPeriodoQuery = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
-            ->whereBetween(DB::raw('DATE(agendamentos.data_hora)'), [$dataInicial, $dataFinal]);
+    //     $financeiroPeriodoQuery = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
+    //         ->whereBetween(DB::raw('DATE(agendamentos.data_hora)'), [$dataInicial, $dataFinal]);
 
-        $statsFinanceiras = [
-            'total_dia' => (clone $financeiroDiaQuery)->where('servicos.preco', '>', 0)->sum('servicos.preco'),
-            'qtd_dia'   => (clone $financeiroDiaQuery)->count(),
-            'total_periodo' => (clone $financeiroPeriodoQuery)->where('servicos.preco', '>', 0)->sum('servicos.preco'),
-            'qtd_periodo'   => (clone $financeiroPeriodoQuery)->count(),
-            'dia_selecionado' => $diaSelecionado,
-            'dia_selecionado_formatado' => $diaSelecionadoFormatado,
-            'data_inicial' => $dataInicial,
-            'data_final' => $dataFinal,
-        ];
+    //     $statsFinanceiras = [
+    //         'total_dia' => (clone $financeiroDiaQuery)->where('servicos.preco', '>', 0)->sum('servicos.preco'),
+    //         'qtd_dia'   => (clone $financeiroDiaQuery)->count(),
+    //         'total_periodo' => (clone $financeiroPeriodoQuery)->where('servicos.preco', '>', 0)->sum('servicos.preco'),
+    //         'qtd_periodo'   => (clone $financeiroPeriodoQuery)->count(),
+    //         'dia_selecionado' => $diaSelecionado,
+    //         'dia_selecionado_formatado' => $diaSelecionadoFormatado,
+    //         'data_inicial' => $dataInicial,
+    //         'data_final' => $dataFinal,
+    //     ];
 
-        $atendimentosDoDia = (clone $financeiroDiaQuery)
-            ->join('barbeiros', 'agendamentos.barbeiro_id', '=', 'barbeiros.id')
-            ->join('clientes', 'agendamentos.cliente_id', '=', 'clientes.id')
-            ->select('agendamentos.*', 'servicos.preco', 'barbeiros.nome as barbeiro_nome', 'clientes.nome as cliente_nome')
-            ->orderBy('agendamentos.data_hora', 'asc')
-            ->get();
+    //     $atendimentosDoDia = (clone $financeiroDiaQuery)
+    //         ->join('barbeiros', 'agendamentos.barbeiro_id', '=', 'barbeiros.id')
+    //         ->join('clientes', 'agendamentos.cliente_id', '=', 'clientes.id')
+    //         ->select('agendamentos.*', 'servicos.preco', 'barbeiros.nome as barbeiro_nome', 'clientes.nome as cliente_nome')
+    //         ->orderBy('agendamentos.data_hora', 'asc')
+    //         ->get();
 
-        $atendimentosDoPeriodo = (clone $financeiroPeriodoQuery)
-            ->join('barbeiros', 'agendamentos.barbeiro_id', '=', 'barbeiros.id')
-            ->join('clientes', 'agendamentos.cliente_id', '=', 'clientes.id')
-            ->select('agendamentos.*', 'servicos.preco', 'barbeiros.nome as barbeiro_nome', 'clientes.nome as cliente_nome')
-            ->orderBy('agendamentos.data_hora', 'desc')
-            ->get();
+    //     $atendimentosDoPeriodo = (clone $financeiroPeriodoQuery)
+    //         ->join('barbeiros', 'agendamentos.barbeiro_id', '=', 'barbeiros.id')
+    //         ->join('clientes', 'agendamentos.cliente_id', '=', 'clientes.id')
+    //         ->select('agendamentos.*', 'servicos.preco', 'barbeiros.nome as barbeiro_nome', 'clientes.nome as cliente_nome')
+    //         ->orderBy('agendamentos.data_hora', 'desc')
+    //         ->get();
 
-        $barbeirosRelatorio = Barbeiro::get()->map(function($barbeiro) use ($dataInicial, $dataFinal) {
-            $agendamentosNoPeriodo = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
-                ->where('agendamentos.barbeiro_id', $barbeiro->id)
-                ->where('agendamentos.status', 'Concluído')
-                ->whereBetween(DB::raw('DATE(agendamentos.data_hora)'), [$dataInicial, $dataFinal])
-                ->select('agendamentos.*', 'servicos.preco', 'servicos.categoria')
-                ->get();
+    //     $barbeirosRelatorio = Barbeiro::get()->map(function($barbeiro) use ($dataInicial, $dataFinal) {
+    //         $agendamentosNoPeriodo = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
+    //             ->where('agendamentos.barbeiro_id', $barbeiro->id)
+    //             ->where('agendamentos.status', 'Concluído')
+    //             ->whereBetween(DB::raw('DATE(agendamentos.data_hora)'), [$dataInicial, $dataFinal])
+    //             ->select('agendamentos.*', 'servicos.preco', 'servicos.categoria')
+    //             ->get();
 
-            $comuns = $agendamentosNoPeriodo->where('preco', '>', 0);
-            $planos = $agendamentosNoPeriodo->where('preco', '<=', 0);
+    //         $comuns = $agendamentosNoPeriodo->where('preco', '>', 0);
+    //         $planos = $agendamentosNoPeriodo->where('preco', '<=', 0);
 
-            return [
-                'nome' => $barbeiro->nome,
-                'total_comuns' => $comuns->count(),
-                'total_planos' => $planos->count(),
-                'faturamento_comum' => $comuns->sum('preco'),
-                'comissao_receber' => $comuns->sum('preco') * 0.50,
-                'detalhes_servicos' => $agendamentosNoPeriodo
-            ];
-        });
+    //         return [
+    //             'nome' => $barbeiro->nome,
+    //             'total_comuns' => $comuns->count(),
+    //             'total_planos' => $planos->count(),
+    //             'faturamento_comum' => $comuns->sum('preco'),
+    //             'comissao_receber' => $comuns->sum('preco') * 0.50,
+    //             'detalhes_servicos' => $agendamentosNoPeriodo
+    //         ];
+    //     });
 
-        $cortesPlanoPorCategoria = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
-            ->whereBetween(DB::raw('DATE(agendamentos.data_hora)'), [$dataInicial, $dataFinal])
-            ->where('servicos.preco', '<=', 0)
-            ->select('servicos.categoria', DB::raw('count(*) as total'))
-            ->groupBy('servicos.categoria')
-            ->get();
+    //     $cortesPlanoPorCategoria = Agendamento::join('servicos', 'agendamentos.servico', '=', 'servicos.nome')
+    //         ->whereBetween(DB::raw('DATE(agendamentos.data_hora)'), [$dataInicial, $dataFinal])
+    //         ->where('servicos.preco', '<=', 0)
+    //         ->select('servicos.categoria', DB::raw('count(*) as total'))
+    //         ->groupBy('servicos.categoria')
+    //         ->get();
 
-        $planosAtivos = Assinatura::where('status', 'Ativo')
-            ->where('status_pagamento', 'Pago')
-            ->whereDate('data_fim', '>=', now()->toDateString())
-            ->get();
+    //     $planosAtivos = Assinatura::where('status', 'Ativo')
+    //         ->where('status_pagamento', 'Pago')
+    //         ->whereDate('data_fim', '>=', now()->toDateString())
+    //         ->get();
 
-        return view('admin.painel', compact(
-            'barbeirosRelatorio', 
-            'cortesPlanoPorCategoria', 
-            'statsFinanceiras',
-            'atendimentosDoDia',
-            'atendimentosDoPeriodo',
-            'planosAtivos'
-        ));
-    }
+    //     return view('admin.painel', compact(
+    //         'barbeirosRelatorio', 
+    //         'cortesPlanoPorCategoria', 
+    //         'statsFinanceiras',
+    //         'atendimentosDoDia',
+    //         'atendimentosDoPeriodo',
+    //         'planosAtivos'
+    //     ));
+    // }
 
     public function agendaAdmin(Request $request)
     {

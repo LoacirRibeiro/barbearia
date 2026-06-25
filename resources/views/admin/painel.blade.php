@@ -32,18 +32,9 @@
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
             {{-- 📊 NOVO: Botão para abrir o Relatório Financeiro --}}
-            <a href="{{ route('admin.planos.relatorio') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold px-4 py-2.5 rounded-xl border border-zinc-800 hover:border-zinc-700 transition flex items-center gap-2">
+            <!-- <a href="{{ route('admin.planos.relatorio') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold px-4 py-2.5 rounded-xl border border-zinc-800 hover:border-zinc-700 transition flex items-center gap-2">
                 <i class="la la-chart-bar text-base text-amber-500"></i> Ver Relatório
-            </a>
-
-            <!-- <span class="text-xs bg-emerald-500/10 text-emerald-400 px-3 py-2 rounded-xl font-bold border border-emerald-500/20">
-                {{ $planosAtivos->count() }} Ativos
-            </span> -->
-
-            {{-- 🛒 NOVO ATALHO: Lançamento Manual / Caixa Balcão --}}
-            <a href="{{ route('admin.caixa') }}" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 transition px-4 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10">
-                <i class="la la-cash-register text-base"></i> Abrir Caixa (Balcão)
-            </a>
+            </a> -->
 
             {{-- BOTÃO DE ATALHO PARA O CONTROLE DE PLANOS/ASSINATURAS --}}
             <a href="{{ route('admin.planos') }}" class="bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 text-zinc-300 hover:text-emerald-400 transition px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
@@ -55,10 +46,31 @@
                 <i class="la la-clock text-base text-zinc-400"></i> Horários
             </a>
 
+            {{--  BOTÃO: EVOLUÇÃO MENSAL --}}
+            <a href="{{ route('admin.colaboradores.evolucao') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center gap-2 font-black uppercase tracking-wider text-pink-500 shadow-lg">
+                <i class="la la-line-chart text-lg"></i> EVOLUÇÃO MENSAL
+            </a>
+
+            {{-- BOTÃO: GESTÃO DE COLABORADORES --}}
+            <a href="{{ route('admin.colaboradores') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
+                <i class="la la-users text-base text-amber-500"></i> GESTÃO DE COLABORADORES
+            </a>
+
+            {{--  BOTÃO: RELATÓRIOS --}}
+            <a href="{{ route('admin.relatorio_mensal') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center gap-2 font-black uppercase tracking-wider text-amber-400 shadow-lg">
+                <i class="la la-chart-bar text-lg"></i> RELATÓRIOS
+            </a>
+
             {{-- BOTÃO: GERENCIAR ESTOQUE --}}
             <a href="{{ route('admin.estoque') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
                 <i class="la la-box text-base text-amber-500"></i> GERENCIAR ESTOQUE
             </a>
+            
+            {{--  BOTÃO: ABRIR CAIXA --}}
+            <a href="{{ route('admin.caixa') }}" class="text-xs bg-amber-500 hover:bg-amber-400 text-zinc-950 px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg shadow-amber-500/10">
+                <i class="la la-cash-register text-base"></i> CAIXA
+            </a>
+
         </div>
     </div>
 
@@ -67,8 +79,6 @@
         {{-- FORMULÁRIO DE FILTROS AVANÇADOS --}}
         <section class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
             <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-                
-                {{-- Filtro Diário --}}
                 <div>
                     <label class="text-[10px] uppercase font-black text-zinc-400 block mb-2">Auditar Dia Específico</label>
                     <input type="text" 
@@ -80,7 +90,6 @@
                         class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-zinc-200">
                 </div>
 
-                {{-- Filtro por Mês do Ano --}}
                 <div>
                     <label class="text-[10px] uppercase font-black text-zinc-400 block mb-2">Filtrar por Mês Completo</label>
                     <select name="mes_ano" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-500 text-zinc-200 appearance-none">
@@ -101,7 +110,6 @@
                             </option>
                         @endforeach
                         
-                        {{-- Listagem do Ano Anterior --}}
                         @foreach($meses as $num => $nome)
                             <option value="{{ $num }}/{{ $anoAtual - 1 }}" {{ $mesAnoSelecionado == "$num/".($anoAtual - 1) ? 'selected' : '' }}>
                                 {{ $nome }} de {{ $anoAtual - 1 }}
@@ -110,189 +118,285 @@
                     </select>
                 </div>
 
-                {{-- Botão Filtrar --}}
-                <button type="submit" class="w-full gold-bg text-zinc-950 font-bold text-sm py-3.5 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2">
+                <button type="submit" class="w-full gold-bg text-zinc-950 font-bold text-sm py-3.5 rounded-xl hover:opacity-90 transition flex items-center justify-center gap-2 cursor-pointer">
                     <i class="la la-filter text-base"></i> Filtrar Painel
                 </button>
             </form>
         </section>
 
-        {{-- PERFORMANCE DETALHADA DO BARBEIRO COM LISTAGEM DE HISTÓRICO --}}
-        <section>
-            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-4 flex items-center gap-2">
-                <i class="la la-users gold-text text-lg"></i> Relatório de Serviços Efetuados por Barbeiro (No Período)
-            </h2>
-            <div class="grid grid-cols-1 gap-6">
-                @forelse($barbeirosRelatorio as $rep)
-                <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden grid grid-cols-1 lg:grid-cols-3">
-                    
-                    {{-- Lado Esquerdo: Estatísticas Consolidadas --}}
-                    <div class="p-6 border-r border-zinc-800 bg-zinc-950/20 flex flex-col justify-between space-y-4">
+        {{-- MÉTRICAS MACROS --}}
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                <div>
+                    <span class="text-[10px] uppercase font-black text-zinc-500 tracking-wider block">Faturamento Bruto</span>
+                    <span class="text-2xl font-black text-zinc-100 block mt-1">
+                        R$ {{ number_format($statsFinanceiras['faturamento_total'] ?? 0, 2, ',', '.') }}
+                    </span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center">
+                    <i class="la la-wallet gold-text text-xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                <div>
+                    <span class="text-[10px] uppercase font-black text-amber-500 tracking-wider block">Venda de Produtos (Casa)</span>
+                    <span class="text-2xl font-black text-amber-400 block mt-1">
+                        R$ {{ number_format($statsFinanceiras['total_produtos'] ?? 0, 2, ',', '.') }}
+                    </span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center">
+                    <i class="la la-box text-amber-400 text-xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                <div>
+                    <span class="text-[10px] uppercase font-black text-zinc-500 tracking-wider block">Lucro Líquido (Casa)</span>
+                    <span class="text-2xl font-black text-emerald-400 block mt-1">
+                        R$ {{ number_format($statsFinanceiras['lucro_barbearia'] ?? 0, 2, ',', '.') }}
+                    </span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center">
+                    <i class="la la-money-bill-wave text-emerald-500 text-xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl flex items-center justify-between shadow-sm">
+                <div>
+                    <span class="text-[10px] uppercase font-black text-zinc-500 tracking-wider block">Ticket Médio</span>
+                    <span class="text-2xl font-black gold-text block mt-1">
+                        R$ {{ number_format($statsFinanceiras['ticket_medio'] ?? 0, 2, ',', '.') }}
+                    </span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center">
+                    <i class="la la-chart-line gold-text text-xl"></i>
+                </div>
+            </div>
+        </section>
+
+        {{-- 📊 CARDS LADO A LADO COM LISTAGEM EMBUTIDA (INTEGRADOS AO FILTRO) --}}
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            {{-- Card Esquerdo: Resumo e Listagem de Serviços --}}
+            <div class="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 flex flex-col justify-between space-y-6">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
                         <div>
-                            <span class="text-[9px] uppercase font-black bg-zinc-800 px-2 py-1 rounded text-zinc-400">Profissional</span>
-                            <h3 class="text-xl font-black uppercase mt-1 tracking-wider text-zinc-100">{{ $rep['nome'] }}</h3>
+                            <h3 class="text-sm font-black uppercase tracking-wider text-zinc-100 flex items-center gap-2">
+                                <i class="la la-scissors text-zinc-400"></i> Serviços Efetuados
+                            </h3>
+                            <p class="text-[10px] text-zinc-500">Mão de obra realizada no período filtrado</p>
                         </div>
-                        <div class="space-y-2 text-xs">
-                            <div class="flex justify-between"><span class="text-zinc-500">Comuns Pagos</span><span class="font-bold">{{ $rep['total_comuns'] }}</span></div>
-                            <div class="flex justify-between"><span class="text-zinc-500">Via Assinatura</span><span class="font-bold text-emerald-500">{{ $rep['total_planos'] }}</span></div>
-                        </div>
-                        <div class="pt-4 border-t border-zinc-800 grid grid-cols-2 gap-2">
-                            <div>
-                                <span class="text-[9px] uppercase font-black text-zinc-500 block">Faturamento</span>
-                                <span class="text-base font-bold text-zinc-200">R$ {{ number_format($rep['faturamento_comum'], 2, ',', '.') }}</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[9px] uppercase font-black text-[#D4AF37] block">Comissão (50%)</span>
-                                <span class="text-lg font-black gold-text">R$ {{ number_format($rep['comissao_receber'], 2, ',', '.') }}</span>
-                            </div>
+                        <div class="text-right">
+                            <span class="text-[9px] uppercase font-black text-zinc-500 block">Total em Serviços</span>
+                            <span class="text-2xl font-black gold-text font-mono">
+                                R$ {{ number_format(($statsFinanceiras['faturamento_total'] ?? 0) - ($statsFinanceiras['total_produtos'] ?? 0), 2, ',', '.') }}
+                            </span>
                         </div>
                     </div>
 
-                    {{-- Lado Direito: Tabela Analítica de Ordens --}}
-                    <div class="lg:col-span-2 p-6 overflow-x-auto">
-                        <span class="text-[10px] uppercase font-black text-zinc-500 block mb-3 tracking-wider">Histórico Analítico de Comissões</span>
+                    {{-- Tabela Interna de Serviços --}}
+                    <div class="overflow-y-auto max-h-64 pr-1 mt-4 border-t border-zinc-800/60 pt-4">
                         <table class="w-full text-left text-xs text-zinc-400">
                             <thead>
-                                <tr class="border-b border-zinc-800 text-zinc-500 uppercase text-[9px] font-black">
-                                    <th class="pb-2">Data/Hora</th>
-                                    <th class="pb-2">Serviço Prestado</th>
-                                    <th class="pb-2">Tipo</th>
-                                    <th class="pb-2 text-right">Preço</th>
-                                    <th class="pb-2 text-right">Sua Comissão</th>
+                                <tr class="text-zinc-500 border-b border-zinc-800/80 uppercase text-[9px] font-black">
+                                    <th class="pb-2">Hora</th>
+                                    <th class="pb-2">Descrição do Serviço</th>
+                                    <th class="pb-2 text-right">Valor</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-zinc-800/50">
-                                @forelse($rep['detalhes_servicos'] as $servicoEfetuado)
-                                <tr>
-                                    {{-- 🌟 MODIFICADO: Uso explícito do Carbon para formatar dia/mês e hora no formato brasileiro --}}
-                                    <td class="py-2.5 font-mono text-zinc-400">
-                                        {{ \Carbon\Carbon::parse($servicoEfetuado->data_hora)->format('d/m H:i') }}
-                                    </td>
-                                    <td class="py-2.5 font-bold text-zinc-200">{{ $servicoEfetuado->servico }}</td>
-                                    <td class="py-2.5">
-                                        @if($servicoEfetuado->preco > 0)
-                                            <span class="text-[9px] uppercase bg-zinc-800 text-zinc-300 font-bold px-1.5 py-0.5 rounded">Avulso</span>
-                                        @else
-                                            <span class="text-[9px] uppercase bg-emerald-950/50 text-emerald-400 font-bold px-1.5 py-0.5 rounded">Clube</span>
-                                        @endif
-                                    </td>
-                                    <td class="py-2.5 text-right font-semibold {{ $servicoEfetuado->preco > 0 ? 'text-zinc-300' : 'text-zinc-600' }}">
-                                        R$ {{ number_format($servicoEfetuado->preco, 2, ',', '.') }}
-                                    </td>
-                                    <td class="py-2.5 text-right font-bold {{ $servicoEfetuado->preco > 0 ? 'gold-text' : 'text-zinc-600' }}">
-                                        R$ {{ number_format($servicoEfetuado->preco * 0.50, 2, ',', '.') }}
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="5" class="py-4 text-center text-zinc-600 italic">Sem atendimentos neste período configurado.</td>
-                                </tr>
-                                @endforelse
+                            <tbody class="divide-y divide-zinc-800/40">
+                                @php $temServico = false; @endphp
+                                @foreach($atendimentosDoPeriodo as $at)
+                                    @if(!isset($at->tipo) || $at->tipo !== 'produto')
+                                        @php $temServico = true; @endphp
+                                        <tr class="hover:bg-zinc-950/20">
+                                            <td class="py-2 font-mono text-zinc-500">
+                                                {{ \Carbon\Carbon::parse($at->data_hora ?? $at->created_at)->format('H:i') }}
+                                            </td>
+                                            <td class="py-2 font-bold text-zinc-200">
+                                                {{ $at->servico ?? $at->descricao }}
+                                            </td>
+                                            <td class="py-2 text-right font-semibold font-mono text-zinc-300">
+                                                R$ {{ number_format(($at->preco ?? $at->subtotal), 2, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                                @if(!$temServico)
+                                    <tr>
+                                        <td colspan="3" class="py-4 text-center text-zinc-600 italic">Nenhum serviço efetuado neste período.</td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
                 </div>
-                @empty
-                <div class="text-center text-sm text-zinc-500 italic p-8 bg-zinc-900 rounded-2xl border border-zinc-800">Nenhum profissional listado.</div>
-                @endforelse
-            </div>
-        </section>
 
-        {{-- SEÇÃO 3: CLUBES --}}
-        <section>
-            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-4 flex items-center gap-2">
-                <i class="la la-certificate gold-text text-lg"></i> Uso do Clube de Benefícios (No Período)
-            </h2>
-            <div class="flex flex-wrap gap-4">
-                @forelse($cortesPlanoPorCategoria as $cat)
-                <div class="bg-zinc-900 px-6 py-4 rounded-xl border border-zinc-800 flex items-center gap-4">
-                    <div class="w-10 h-10 gold-bg text-black rounded-full flex items-center justify-center font-black">{{ $cat->total }}</div>
-                    <div>
-                        <span class="text-[10px] uppercase font-black text-zinc-500 block">Categoria</span>
-                        <span class="font-bold text-zinc-100">{{ $cat->categoria ?? 'Não Definida' }}</span>
+                <div class="grid grid-cols-2 gap-4 my-4">
+                    <div class="bg-zinc-950/40 border border-zinc-800/50 rounded-xl p-3">
+                        <span class="text-[9px] uppercase font-bold text-zinc-500 block mb-0.5">Qtd. Total Serviços</span>
+                        <span class="text-lg font-black text-zinc-200 font-mono">{{ $qtdTotalServicos }}</span>
+                    </div>
+                    <div class="bg-zinc-950/40 border border-zinc-800/50 rounded-xl p-3">
+                        <span class="text-[9px] uppercase font-bold text-zinc-500 block mb-0.5">Ticket Médio</span>
+                        <span class="text-lg font-black text-amber-500 font-mono">R$ {{ number_format($ticketMedioServicos, 2, ',', '.') }}</span>
                     </div>
                 </div>
-                @empty
-                <div class="text-sm text-zinc-500 italic p-6 bg-zinc-900 rounded-xl border border-zinc-800 w-full">Nenhum consumo por assinatura no período selecionado.</div>
-                @endforelse
             </div>
+
+            {{-- Card Direito: Resumo e Listagem de Produtos --}}
+            <div class="bg-zinc-900 rounded-2xl border border-zinc-800 p-6 flex flex-col justify-between space-y-6">
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-sm font-black uppercase tracking-wider text-amber-500 flex items-center gap-2">
+                                <i class="la la-shopping-bag"></i> Vendas de Produtos
+                            </h3>
+                            <p class="text-[10px] text-zinc-500">Saídas registradas na vitrine do período filtrado</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[9px] uppercase font-black text-zinc-500 block">Total em Produtos</span>
+                            <span class="text-2xl font-black text-amber-400 font-mono">
+                                R$ {{ number_format($statsFinanceiras['total_produtos'] ?? 0, 2, ',', '.') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    {{-- Tabela Interna de Produtos --}}
+                    <div class="overflow-y-auto max-h-64 pr-1 mt-4 border-t border-zinc-800/60 pt-4">
+                        <table class="w-full text-left text-xs text-zinc-400">
+                            <thead>
+                                <tr class="text-zinc-500 border-b border-zinc-800/80 uppercase text-[9px] font-black">
+                                    <th class="pb-2">Hora</th>
+                                    <th class="pb-2">Nome do Produto</th>
+                                    <th class="pb-2 text-center">Qtd</th>
+                                    <th class="pb-2 text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-zinc-800/40">
+                                @php $temProduto = false; @endphp
+                                @foreach($atendimentosDoPeriodo as $at)
+                                    @if(isset($at->tipo) && $at->tipo === 'produto')
+                                        @php $temProduto = true; @endphp
+                                        <tr class="hover:bg-zinc-950/20">
+                                            <td class="py-2 font-mono text-zinc-500">
+                                                {{ \Carbon\Carbon::parse($at->data_hora ?? $at->created_at)->format('H:i') }}
+                                            </td>
+                                            <td class="py-2 font-bold text-amber-100">
+                                                {{ $at->servico ?? $at->descricao }}
+                                            </td>
+                                            <td class="py-2 text-center font-bold text-zinc-400">
+                                                {{ $at->quantidade ?? 1 }}
+                                            </td>
+                                            <td class="py-2 text-right font-semibold font-mono text-amber-400">
+                                                R$ {{ number_format(($at->preco ?? $at->subtotal), 2, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endforeach
+                                @if(!$temProduto)
+                                    <tr>
+                                        <td colspan="4" class="py-4 text-center text-zinc-600 italic">Nenhum produto vendido neste período.</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 my-4">
+                    <div class="bg-zinc-950/40 border border-zinc-800/50 rounded-xl p-3">
+                        <span class="text-[9px] uppercase font-bold text-zinc-500 block mb-0.5">Quantidade total de produtos:</span>
+                        <span class="text-lg font-black text-zinc-200 font-mono">{{ $statsFinanceiras['quantidade_produtos_vendidos'] ?? 0 }} itens</span>
+                    </div>
+                    <div class="bg-zinc-950/40 border border-zinc-800/50 rounded-xl p-3">
+                        <span class="text-[9px] uppercase font-bold text-zinc-500 block mb-0.5">Ticket médio por item comprado:</span>
+                        <span class="text-lg font-black text-amber-500 font-mono">R$ {{ number_format($statsFinanceiras['ticket_medio_produtos'] ?? 0, 2, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
+        {{-- 📋 MOVIMENTAÇÕES COMPLETA DO DIA (FLUXO INTEGRADO DIRETOR NA TELA) --}}
+        <!-- <section class="bg-zinc-900 rounded-2xl border border-zinc-800 p-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-zinc-800 pb-4 mb-4 gap-2">
+                <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-zinc-100 flex items-center gap-2">
+                        <i class="la la-list gold-text"></i> Extrato de Movimentações do Período Filtrado
+                    </h3>
+                    <p class="text-[10px] text-zinc-500">Exibindo fluxo completo unificado (Serviços executados e Produtos comercializados)</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-zinc-400">
+                    <thead>
+                        <tr class="text-zinc-500 border-b border-zinc-800 uppercase text-[9px] font-black">
+                            <th class="pb-3">Data / Hora</th>
+                            <th class="pb-3">Item / Descrição</th>
+                            <th class="pb-3">Tipo de Operação</th>
+                            <th class="pb-3 text-right">Valor Unitário</th>
+                            <th class="pb-3 text-right">Qtd</th>
+                            <th class="pb-3 text-right">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-zinc-800/40">
+                        @forelse($atendimentosDoPeriodo as $at)
+                        <tr class="hover:bg-zinc-950/30 transition">
+                            {{-- Data e Hora --}}
+                            <td class="py-3 font-mono text-zinc-500">
+                                {{ \Carbon\Carbon::parse($at->data_hora ?? $at->created_at)->format('d/m/Y H:i') }}
+                            </td>
+                            
+                            {{-- Descrição --}}
+                            <td class="py-3 font-bold text-zinc-200">
+                                {{ $at->servico ?? $at->descricao }}
+                            </td>
+                            
+                            {{-- Badge de Operação --}}
+                            <td class="py-3">
+                                @if(isset($at->tipo) && $at->tipo === 'produto')
+                                    <span class="text-[9px] bg-amber-950/80 border border-amber-900/50 text-amber-400 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Produto</span>
+                                @else
+                                    <span class="text-[9px] bg-zinc-800 text-zinc-300 font-bold px-2 py-0.5 rounded-md uppercase tracking-wider">Serviço</span>
+                                @endif
+                            </td>
+                            
+                            {{-- 🛠️ VALOR UNITÁRIO CORRIGIDO --}}
+                            <td class="py-3 text-right text-zinc-400 font-mono">
+                                @php
+                                    // Se existir preco_unitario original usa, senão calcula dinamicamente pelo subtotal/quantidade
+                                    $valorUnitario = $at->preco_unitario ?? ($at->subtotal / ($at->quantidade ?? 1));
+                                @endphp
+                                R$ {{ number_format($valorUnitario, 2, ',', '.') }}
+                            </td>
+                            
+                            {{-- Quantidade --}}
+                            <td class="py-3 text-right text-zinc-500 font-bold">
+                                {{ $at->quantidade ?? 1 }}
+                            </td>
+                            
+                            {{-- Subtotal --}}
+                            <td class="py-3 text-right font-black font-mono {{ $at->subtotal > 0 ? 'gold-text' : 'text-zinc-600' }}">
+                                R$ {{ number_format($at->subtotal, 2, ',', '.') }}
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="py-8 text-center text-zinc-600 italic bg-zinc-950/10">
+                                Nenhuma movimentação registrada para os critérios de filtragem selecionados.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section> -->
+
     </main>
-
-    {{-- MODAL INTERNO - AUDITORIA DO DIA --}}
-    <dialog id="modal_dia" class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-3xl w-full p-6 text-zinc-100">
-        <div class="flex justify-between items-center border-b border-zinc-800 pb-4 mb-4">
-            <div>
-                <h3 class="text-base font-black uppercase">Auditoria de Vendas: Dia</h3>
-                <p class="text-[10px] text-zinc-500">Exibindo listagem cronológica</p>
-            </div>
-            <button onclick="document.getElementById('modal_dia').close()" class="text-zinc-400 hover:text-zinc-100 text-xl"><i class="la la-times"></i></button>
-        </div>
-        <div class="overflow-y-auto max-h-[60vh]">
-            <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="text-zinc-500 border-b border-zinc-800 uppercase text-[9px] font-black">
-                        <th class="pb-2">Hora</th>
-                        <th class="pb-2">Cliente</th>
-                        <th class="pb-2">Profissional</th>
-                        <th class="pb-2">Serviço</th>
-                        <th class="pb-2 text-right">Valor</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-zinc-800/40">
-                    @forelse($atendimentosDoDia as $at)
-                    <tr>
-                        <td class="py-2.5 font-mono text-zinc-500">{{ \Carbon\Carbon::parse($at->data_hora)->format('H:i') }}</td>
-                        <td class="py-2.5 font-bold text-zinc-300">{{ $at->cliente_nome }}</td>
-                        <td class="py-2.5 text-zinc-400">{{ $at->barbeiro_nome }}</td>
-                        <td class="py-2.5 text-zinc-300">{{ $at->servico }}</td>
-                        <td class="py-2.5 text-right font-black {{ $at->preco > 0 ? 'gold-text' : 'text-zinc-600' }}">R$ {{ number_format($at->preco, 2, ',', '.') }}</td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="5" class="py-6 text-center text-zinc-500 italic">Nenhum atendimento agendado ou executado neste dia.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </dialog>
-
-    {{-- MODAL INTERNO - AUDITORIA DO PERÍODO --}}
-    <dialog id="modal_periodo" class="bg-zinc-900 border border-zinc-800 rounded-2xl max-w-3xl w-full p-6 text-zinc-100">
-        <div class="flex justify-between items-center border-b border-zinc-800 pb-4 mb-4">
-            <div>
-                <h3 class="text-base font-black uppercase">Auditoria de Vendas: Histórico do Período</h3>
-                <p class="text-[10px] text-zinc-500">Exibindo fluxo completo de faturamento</p>
-            </div>
-            <button onclick="document.getElementById('modal_periodo').close()" class="text-zinc-400 hover:text-zinc-100 text-xl"><i class="la la-times"></i></button>
-        </div>
-        <div class="overflow-y-auto max-h-[60vh]">
-            <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="text-zinc-500 border-b border-zinc-800 uppercase text-[9px] font-black">
-                        <th class="pb-2">Data</th>
-                        <th class="pb-2">Cliente</th>
-                        <th class="pb-2">Profissional</th>
-                        <th class="pb-2">Serviço</th>
-                        <th class="pb-2 text-right">Valor</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-zinc-800/40">
-                    @forelse($atendimentosDoPeriodo as $at)
-                    <tr>
-                        <td class="py-2.5 font-mono text-zinc-500">{{ \Carbon\Carbon::parse($at->data_hora)->format('d/m/Y H:i') }}</td>
-                        <td class="py-2.5 font-bold text-zinc-300">{{ $at->cliente_nome }}</td>
-                        <td class="py-2.5 text-zinc-400">{{ $at->barbeiro_nome }}</td>
-                        <td class="py-2.5 text-zinc-300">{{ $at->servico }}</td>
-                        <td class="py-2.5 text-right font-black {{ $at->preco > 0 ? 'text-zinc-200' : 'text-zinc-600' }}">R$ {{ number_format($at->preco, 2, ',', '.') }}</td>
-                    </tr>
-                    @empty
-                    <tr><td colspan="5" class="py-6 text-center text-zinc-500 italic">Nenhum faturamento registrado no intervalo selecionado.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </dialog>
 
     <script>
         function mascaraData(campo) {

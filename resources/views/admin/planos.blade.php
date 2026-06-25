@@ -27,6 +27,19 @@
         </div>
     </header>
 
+    <!-- <div class="max-w-7xl mx-auto px-4 mt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+        <h2 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+            <i class="la la-wallet gold-text text-lg"></i> Faturamento e Auditoria de Fluxo
+        </h2>
+
+        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+            {{-- 📊 NOVO: Botão para abrir o Relatório Financeiro --}}
+            <a href="{{ route('admin.planos.relatorio') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-bold px-4 py-2.5 rounded-xl border border-zinc-800 hover:border-zinc-700 transition flex items-center gap-2">
+                <i class="la la-chart-bar text-base text-amber-500"></i> Ver Relatório
+            </a>
+        </div>
+    </div> -->
+
     <main class="max-w-7xl mx-auto px-4 mt-8 space-y-12">
 
         {{-- Alertas de Feedback do Laravel --}}
