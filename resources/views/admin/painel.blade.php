@@ -54,6 +54,11 @@
             <a href="{{ route('admin.agenda') }}" class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-200 transition px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
                 <i class="la la-clock text-base text-zinc-400"></i> Horários
             </a>
+
+            {{-- BOTÃO: GERENCIAR ESTOQUE --}}
+            <a href="{{ route('admin.estoque') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
+                <i class="la la-box text-base text-amber-500"></i> GERENCIAR ESTOQUE
+            </a>
         </div>
     </div>
 

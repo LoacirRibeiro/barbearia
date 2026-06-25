@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomAuthController;
 use App\Http\Controllers\AgendamentoController; // 🚀 Adicionado
 use App\Http\Controllers\AssinaturaController;  // 🚀 Adicionado
 use App\Http\Controllers\AdminController;       // 🚀 Adicionado
+use App\Http\Controllers\Admin\EstoqueController;
 
 // Rota da Página Inicial Pública
 Route::get('/', [PublicController::class, 'index']);
@@ -72,8 +73,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Route::get('/faturamento', [PainelController::class, 'index'])->name('admin.painel');
     // Route::post('/caixa/salvar', [CaixaBalcaoController::class, 'salvar'])->name('admin.caixa.salvar');
     // // Rotas de Estoque
-    // Route::get('/estoque', [EstoqueController::class, 'index'])->name('admin.estoque');
-    // Route::post('/estoque/repor/{id}', [EstoqueController::class, 'repor'])->name('admin.estoque.repor');
+    Route::get('/estoque', [EstoqueController::class, 'index'])->name('admin.estoque');
+    Route::post('/estoque/repor/{id}', [EstoqueController::class, 'repor'])->name('admin.estoque.repor');
     // // Rotas de Fluxo de Caixa Físico
     // Route::post('/caixa/abrir', [CaixaGestaoController::class, 'abrir'])->name('admin.caixa.abrir');
     // Route::post('/caixa/movimentar', [CaixaGestaoController::class, 'movimentar'])->name('admin.caixa.movimentar');
@@ -87,5 +88,5 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 
     // Route::get('/admin/colaboradores/evolucao', [PainelController::class, 'evolucao'])->name('admin.colaboradores.evolucao');
 
-    // Route::post('/estoque/baixa/{id}', [EstoqueController::class, 'darBaixa'])->name('admin.estoque.darBaixa');
+    Route::post('/estoque/baixa/{id}', [EstoqueController::class, 'darBaixa'])->name('admin.estoque.darBaixa');
 });
