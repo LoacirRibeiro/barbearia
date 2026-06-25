@@ -27,9 +27,11 @@
             </a>
             
             <div class="flex items-center space-x-4">
+               {{-- 🔒 Checa se o usuário está logado no site --}}
                 @auth
-                    @if(auth()->user()->hasRole('admin')) 
-                        <a href="{{ route('admin.painel') }}" class="bg-[#D4AF37] text-black text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest hover:bg-yellow-500 transition shadow-lg shadow-yellow-500/20">
+                    {{-- 👑 💰 Se o usuário logado for 'admin' OU 'operador', o botão aparece na Home --}}
+                    @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('operador'))
+                        <a href="{{ route('admin.caixa') }}" class="bg-[#D4AF37] text-black text-[10px] font-black px-4 py-2 rounded-lg uppercase tracking-widest hover:bg-yellow-500 transition shadow-lg shadow-yellow-500/20">
                             <i class="la la-cog"></i> Painel Administrativo
                         </a>
                     @endif

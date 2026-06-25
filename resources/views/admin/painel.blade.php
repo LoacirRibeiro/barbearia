@@ -27,7 +27,7 @@
 
     <div class="max-w-7xl mx-auto px-4 mt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
         <h2 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
-            <i class="la la-wallet gold-text text-lg"></i> Faturamento Geral
+            <i class="la la-wallet gold-text text-lg"></i> Faturamento e Auditoria de Fluxo
         </h2>
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
@@ -41,7 +41,7 @@
             </span> -->
 
             {{-- 🛒 NOVO ATALHO: Lançamento Manual / Caixa Balcão --}}
-            <a href="{{ route('admin.caixa.form') }}" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 transition px-4 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10">
+            <a href="{{ route('admin.caixa') }}" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 transition px-4 py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-lg shadow-amber-500/10">
                 <i class="la la-cash-register text-base"></i> Abrir Caixa (Balcão)
             </a>
 

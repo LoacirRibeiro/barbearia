@@ -7,6 +7,7 @@ use App\Http\Controllers\AgendamentoController; // 🚀 Adicionado
 use App\Http\Controllers\AssinaturaController;  // 🚀 Adicionado
 use App\Http\Controllers\AdminController;       // 🚀 Adicionado
 use App\Http\Controllers\Admin\EstoqueController;
+use App\Http\Controllers\Admin\CaixaBalcaoController;
 
 // Rota da Página Inicial Pública
 Route::get('/', [PublicController::class, 'index']);
@@ -66,22 +67,22 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::delete('/planos/cancelar/{id}', [AdminController::class, 'cancelarAssinaturaPendete'])->name('admin.planos.cancelar');
 
     // Gestão do Caixa / Lançamento Manual de Balcão
-    Route::get('/caixa', [AdminController::class, 'caixaForm'])->name('admin.caixa.form');
-    Route::post('/caixa/salvar', [AdminController::class, 'caixaSalvar'])->name('admin.caixa.salvar');
+    // Route::get('/caixa', [AdminController::class, 'caixaForm'])->name('admin.caixa.form');
+    // Route::post('/caixa/salvar', [AdminController::class, 'caixaSalvar'])->name('admin.caixa.salvar');
 
-    // Route::get('/caixa', [CaixaBalcaoController::class, 'index'])->name('admin.caixa');
-    // Route::get('/faturamento', [PainelController::class, 'index'])->name('admin.painel');
-    // Route::post('/caixa/salvar', [CaixaBalcaoController::class, 'salvar'])->name('admin.caixa.salvar');
+    Route::get('/caixa', [CaixaBalcaoController::class, 'index'])->name('admin.caixa');
+    Route::get('/faturamento', [PainelController::class, 'index'])->name('admin.painel');
+    Route::post('/caixa/salvar', [CaixaBalcaoController::class, 'salvar'])->name('admin.caixa.salvar');
     // // Rotas de Estoque
     Route::get('/estoque', [EstoqueController::class, 'index'])->name('admin.estoque');
     Route::post('/estoque/repor/{id}', [EstoqueController::class, 'repor'])->name('admin.estoque.repor');
     // // Rotas de Fluxo de Caixa Físico
-    // Route::post('/caixa/abrir', [CaixaGestaoController::class, 'abrir'])->name('admin.caixa.abrir');
-    // Route::post('/caixa/movimentar', [CaixaGestaoController::class, 'movimentar'])->name('admin.caixa.movimentar');
-    // Route::post('/caixa/fechar', [CaixaGestaoController::class, 'fechar'])->name('admin.caixa.fechar');
-    // Route::get('/admin/relatorio-mensal', [CaixaRelatorioController::class, 'relatorioMensal'])->name('admin.relatorio_mensal');
-    // Route::get('/admin/caixa/dados-fechamento', [CaixaGestaoController::class, 'dadosFechamento'])->name('admin.caixa.dados_fechamento');
-    // // Gestão de Colaboradores 
+    Route::post('/caixa/abrir', [CaixaGestaoController::class, 'abrir'])->name('admin.caixa.abrir');
+    Route::post('/caixa/movimentar', [CaixaGestaoController::class, 'movimentar'])->name('admin.caixa.movimentar');
+    Route::post('/caixa/fechar', [CaixaGestaoController::class, 'fechar'])->name('admin.caixa.fechar');
+    Route::get('/admin/relatorio-mensal', [CaixaRelatorioController::class, 'relatorioMensal'])->name('admin.relatorio_mensal');
+    Route::get('/admin/caixa/dados-fechamento', [CaixaGestaoController::class, 'dadosFechamento'])->name('admin.caixa.dados_fechamento');
+    // Gestão de Colaboradores 
     // Route::get('/admin/colaboradores', [PainelController::class, 'colaboradores'])->name('admin.colaboradores');
 
     // Route::post('/admin/colaboradores/pagar', [PagamentoController::class, 'registrarPagamento'])->name('admin.pagamentos.store');
