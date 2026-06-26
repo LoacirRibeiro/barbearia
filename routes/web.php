@@ -89,10 +89,9 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/admin/caixa/dados-fechamento', [CaixaGestaoController::class, 'dadosFechamento'])->name('admin.caixa.dados_fechamento');
     // Gestão de Colaboradores 
     Route::get('/admin/colaboradores', [PainelController::class, 'colaboradores'])->name('admin.colaboradores');
-
     Route::post('/admin/colaboradores/pagar', [PagamentoController::class, 'registrarPagamento'])->name('admin.pagamentos.store');
-
     Route::get('/admin/colaboradores/evolucao', [PainelController::class, 'evolucao'])->name('admin.colaboradores.evolucao');
 
     Route::post('/estoque/baixa/{id}', [EstoqueController::class, 'darBaixa'])->name('admin.estoque.darBaixa');
+    
 });

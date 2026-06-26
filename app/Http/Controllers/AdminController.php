@@ -165,69 +165,72 @@ class AdminController extends Controller
     }
 
     public function relatorioPlanos()
-    {
-        $hoje = now()->format('Y-m-d');
+{
+    $hoje = now()->format('Y-m-d');
 
-        $planosPendentes = DB::table('assinaturas')
-            ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
-            ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
-            ->where('assinaturas.status_pagamento', 'Pendente')
-            ->select(
-                'assinaturas.id as assinatura_id', 
-                'clientes.nome as cliente_nome', 
-                'clientes.email as cliente_email', 
-                'assinaturas.data_inicio', 
-                'assinaturas.data_fim',
-                'assinaturas.forma_pagamento',
-                'assinaturas.status_pagamento',    
-                'planos.nome as nome_plano',   
-                'planos.preco as preco_plano'  
-            )
-            ->orderBy('assinaturas.created_at', 'desc')
-            ->get();
+    $planosPendentes = DB::table('assinaturas')
+        ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
+        ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
+        ->where('assinaturas.status_pagamento', 'Pendente')
+        ->where('assinaturas.status', '!=', 'Cancelado') // Garante que cancelados saiam daqui
+        ->select(
+            'assinaturas.id as assinatura_id', 
+            'clientes.nome as cliente_nome', 
+            'clientes.email as cliente_email', 
+            'assinaturas.data_inicio', 
+            'assinaturas.data_fim',
+            'assinaturas.forma_pagamento',
+            'assinaturas.status_pagamento',    
+            'planos.nome as nome_plano',   
+            'planos.preco as preco_plano'  
+        )
+        ->orderBy('assinaturas.created_at', 'desc')
+        ->get();
 
-        $planosAtivos = DB::table('assinaturas')
-            ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
-            ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
-            ->where(DB::raw('DATE(assinaturas.data_fim)'), '>=', $hoje)
-            ->where('assinaturas.status', 'Ativo')
-            ->where('assinaturas.status_pagamento', 'Pago')
-            ->select(
-                'assinaturas.id as assinatura_id',
-                'clientes.nome as cliente_nome', 
-                'clientes.email as cliente_email', 
-                'assinaturas.data_inicio', 
-                'assinaturas.data_fim',
-                'assinaturas.forma_pagamento',
-                'assinaturas.status_pagamento',
-                'planos.nome as nome_plano',   
-                'planos.preco as preco_plano'  
-            )
-            ->orderBy('assinaturas.data_fim', 'asc')
-            ->get();
+    $planosAtivos = DB::table('assinaturas')
+        ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
+        ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
+        ->where(DB::raw('DATE(assinaturas.data_fim)'), '>=', $hoje)
+        ->where('assinaturas.status', 'Ativo')
+        ->where('assinaturas.status_pagamento', 'Pago')
+        ->select(
+            'assinaturas.id as assinatura_id',
+            'clientes.nome as cliente_nome', 
+            'clientes.email as cliente_email', 
+            'assinaturas.data_inicio', 
+            'assinaturas.data_fim',
+            'assinaturas.forma_pagamento',
+            'assinaturas.status_pagamento',
+            'planos.nome as nome_plano',   
+            'planos.preco as preco_plano'  
+        )
+        ->orderBy('assinaturas.data_fim', 'asc')
+        ->get();
 
-        $planosVencidos = DB::table('assinaturas')
-            ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
-            ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
-            ->where(function($query) use ($hoje) {
-                $query->where(DB::raw('DATE(assinaturas.data_fim)'), '<', $hoje)
-                    ->orWhere('assinaturas.status', '!=', 'Ativo'); 
-            })
-            ->where('assinaturas.status_pagamento', '!=', 'Pendente') 
-            ->select(
-                'assinaturas.id as assinatura_id',
-                'clientes.nome as cliente_nome',
-                'assinaturas.data_inicio',
-                'assinaturas.data_fim',
-                'assinaturas.forma_pagamento',
-                'planos.nome as nome_plano',
-                'planos.preco as preco_plano'
-            )
-            ->orderBy('assinaturas.data_fim', 'desc')
-            ->get();
+    // 🛠️ QUERY CORRIGIDA PARA MOSTRAR OS CANCELADOS NO HISTÓRICO
+    $planosVencidos = DB::table('assinaturas')
+        ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
+        ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
+        ->where(function($query) use ($hoje) {
+            $query->where(DB::raw('DATE(assinaturas.data_fim)'), '<', $hoje) // Vencidos por data
+                  ->orWhere('assinaturas.status', 'Cancelado')             // 👈 Captura os Cancelados explicitamente
+                  ->orWhere('assinaturas.status', 'Inativo');               // Inativos que já saíram do balcão
+        })
+        ->select(
+            'assinaturas.id as assinatura_id',
+            'clientes.nome as cliente_nome',
+            'assinaturas.data_inicio',
+            'assinaturas.data_fim',
+            'assinaturas.forma_pagamento',
+            'assinaturas.status', // Puxando o status real para você saber o que é vencido e o que é cancelado
+            'planos.nome as nome_plano',
+            'planos.preco as preco_plano'
+        )
+        ->orderBy('assinaturas.updated_at', 'desc') // Mais recentes no topo
+        ->get();
 
-        return view('admin.planos', compact('planosPendentes', 'planosAtivos', 'planosVencidos'));
-    }
+    return view('admin.planos', compact('planosPendentes', 'planosAtivos', 'planosVencidos'));
+}
 
     public function confirmarPagamento(Request $request, $id) 
     {
@@ -288,45 +291,46 @@ class AdminController extends Controller
     }
 
     public function visualizarRelatorio()
-    {
-        $hoje = now()->format('Y-m-d');
+{
+    $hoje = now()->format('Y-m-d');
 
-        $totalFaturado = DB::table('assinaturas')
-            ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
-            ->where('assinaturas.status_pagamento', 'Pago')
-            ->sum('planos.preco');
+    $totalFaturado = DB::table('assinaturas')
+        ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
+        ->where('assinaturas.status_pagamento', 'Pago')
+        ->sum('planos.preco');
 
-        $totalContratados = DB::table('assinaturas')
-            ->where('status', 'Ativo')
-            ->where('status_pagamento', 'Pago')
-            ->where(DB::raw('DATE(data_fim)'), '>=', $hoje)
-            ->count();
+    $totalContratados = DB::table('assinaturas')
+        ->where('status', 'Ativo')
+        ->where('status_pagamento', 'Pago')
+        ->where(DB::raw('DATE(data_fim)'), '>=', $hoje)
+        ->count();
 
-        $totalCancelados = DB::table('assinaturas')
-            ->where(function($query) use ($hoje) {
-                $query->where(DB::raw('DATE(data_fim)'), '<', $hoje)
-                    ->orWhere('status', '!=', 'Ativo');
-            })
-            ->where('status_pagamento', '!=', 'Pendente')
-            ->count();
+    // 🔥 CORRIGIDO: Agora conta TODOS os cancelados ou vencidos, independente de estar pendente ou não
+    $totalCancelados = DB::table('assinaturas')
+        ->where(function($query) use ($hoje) {
+            $query->where(DB::raw('DATE(data_fim)'), '<', $hoje)
+                  ->orWhere('status', 'Cancelado')
+                  ->orWhere('status', '!=', 'Ativo');
+        })
+        ->count();
 
-        $movimentacoes = DB::table('assinaturas')
-            ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
-            ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
-            ->select(
-                'clientes.nome as cliente_nome',
-                'planos.nome as nome_plano',
-                'planos.preco as preco_plano',
-                'assinaturas.status',
-                'assinaturas.status_pagamento',
-                'assinaturas.updated_at'
-            )
-            ->orderBy('assinaturas.updated_at', 'desc')
-            ->take(50)
-            ->get();
+    $movimentacoes = DB::table('assinaturas')
+        ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
+        ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
+        ->select(
+            'clientes.nome as cliente_nome',
+            'planos.nome as nome_plano',
+            'planos.preco as preco_plano',
+            'assinaturas.status',
+            'assinaturas.status_pagamento',
+            'assinaturas.updated_at'
+        )
+        ->orderBy('assinaturas.updated_at', 'desc')
+        ->take(50)
+        ->get();
 
-        return view('admin.relatorios.planos', compact('totalFaturado', 'totalContratados', 'totalCancelados', 'movimentacoes'));
-    }
+    return view('admin.relatorios.planos', compact('totalFaturado', 'totalContratados', 'totalCancelados', 'movimentacoes'));
+}
 
     public function obterDetalhes($id)
     {
@@ -401,8 +405,12 @@ class AdminController extends Controller
             return redirect()->back()->withErrors(['senha_admin' => 'Senha administrativa incorreta. Operação cancelada.']);
         }
 
+        // 🔥 CORRIGIDO: Em vez de ->delete(), atualizamos o status para salvar no histórico
         $assinatura = Assinatura::findOrFail($id);
-        $assinatura->delete();
+        $assinatura->update([
+            'status' => 'Cancelado',
+            'updated_at' => now()
+        ]);
 
         return redirect()->back()->with('sucesso', 'Pedido de assinatura cancelado com sucesso de forma segura!');
     }

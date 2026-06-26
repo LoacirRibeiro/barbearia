@@ -32,7 +32,7 @@
                     <span class="text-xs font-bold uppercase tracking-wider text-zinc-500">Faturamento Confirmado</span>
                     <i class="la la-wallet text-2xl text-emerald-500"></i>
                 </div>
-                <div class="text-2xl font-black text-emerald-400 font-mono">
+                <div id="cardFaturamento" class="text-2xl font-black text-emerald-400 font-mono">
                     R$ {{ number_format($totalFaturado, 2, ',', '.') }}
                 </div>
                 <p class="text-[10px] text-zinc-500 mt-1">Apenas valores com recebimento confirmado no balcão.</p>
@@ -45,7 +45,7 @@
                     <i class="la la-users text-2xl text-amber-500"></i>
                 </div>
                 <div class="text-2xl font-black text-zinc-200">
-                    {{ $totalContratados }} <span class="text-xs font-normal text-zinc-500">assinaturas</span>
+                    <span id="cardAtivos">{{ $totalContratados }}</span> <span class="text-xs font-normal text-zinc-500">assinaturas</span>
                 </div>
                 <p class="text-[10px] text-zinc-500 mt-1">Clientes com acesso liberado neste momento.</p>
             </div>
@@ -57,7 +57,7 @@
                     <i class="la la-user-slash text-2xl text-rose-500"></i>
                 </div>
                 <div class="text-2xl font-black text-rose-500">
-                    {{ $totalCancelados }} <span class="text-xs font-normal text-zinc-500">inativos</span>
+                    <span id="cardCancelados">{{ $totalCancelados }}</span> <span class="text-xs font-normal text-zinc-500">inativos</span>
                 </div>
                 <p class="text-[10px] text-zinc-500 mt-1">Histórico total de quebras de contrato ou expirações.</p>
             </div>
@@ -66,14 +66,55 @@
 
         {{-- 🕒 TABELA DE LOGS E MOVIMENTAÇÕES --}}
         <section>
-            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-400 mb-4 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-zinc-500"></span>
-                Fluxo Recente de Contratações, Cancelamentos e Reativações
-            </h2>
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
+                <h2 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-400 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-zinc-500"></span>
+                    Fluxo Recent de Contratações, Cancelamentos e Reativações
+                </h2>
+                
+                {{-- 🔍 ÁREA DOS FILTROS COMBINADOS --}}
+                <div class="flex flex-col sm:flex-row items-center gap-4 bg-zinc-900/40 p-2 rounded-xl border border-zinc-800/40">
+                    
+                    {{-- Filtro por Plano --}}
+                    <div class="flex items-center gap-2 min-w-[200px] w-full sm:w-auto">
+                        <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider whitespace-nowrap">Plano:</span>
+                        <select id="filtroPlano" onchange="filtrarTabela()" class="w-full bg-zinc-950 border border-zinc-800 text-xs rounded-lg px-2.5 py-1.5 text-zinc-300 focus:outline-none focus:border-amber-500 transition">
+                            <option value="TODOS">Todos</option>
+                            @php
+                                $nomesPlanosUnicos = $movimentacoes->pluck('nome_plano')->unique();
+                            @endphp
+                            @foreach($nomesPlanosUnicos as $nomePlano)
+                                <option value="{{ trim(strtoupper($nomePlano)) }}">{{ $nomePlano }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Filtro por Mês --}}
+                    <div class="flex items-center gap-2 min-w-[180px] w-full sm:w-auto">
+                        <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider whitespace-nowrap">Mês:</span>
+                        <select id="filtroMes" onchange="filtrarTabela()" class="w-full bg-zinc-950 border border-zinc-800 text-xs rounded-lg px-2.5 py-1.5 text-zinc-300 focus:outline-none focus:border-amber-500 transition">
+                            <option value="TODOS">Todos os Meses</option>
+                            <option value="01">Janeiro</option>
+                            <option value="02">Fevereiro</option>
+                            <option value="03">Março</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Maio</option>
+                            <option value="06">Junho</option>
+                            <option value="07">Julho</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
             
             <div class="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-zinc-400">
+                    <table class="w-full text-left text-xs text-zinc-400" id="tabelaMovimentacoes">
                         <thead>
                             <tr class="bg-zinc-950/40 border-b border-zinc-800 text-zinc-500 uppercase text-[9px] font-black tracking-wider">
                                 <th class="p-4">Cliente</th>
@@ -86,7 +127,16 @@
                         </thead>
                         <tbody class="divide-y divide-zinc-800/50">
                             @forelse($movimentacoes as $mov)
-                            <tr class="hover:bg-zinc-950/20 transition">
+                            @php
+                                $mesDoEvento = \Carbon\Carbon::parse($mov->updated_at)->format('m');
+                            @endphp
+                            {{-- 💡 Injetamos dados limpos de status, pagamento e preço nos atributos da TR --}}
+                            <tr class="hover:bg-zinc-950/20 transition linha-movimentacao" 
+                                data-plano="{{ trim(strtoupper($mov->nome_plano)) }}"
+                                data-mes="{{ $mesDoEvento }}"
+                                data-status="{{ $mov->status }}"
+                                data-pagamento="{{ $mov->status_pagamento }}"
+                                data-preco="{{ $mov->preco_plano }}">
                                 <td class="p-4">
                                     <div class="font-bold text-zinc-300">{{ $mov->cliente_nome }}</div>
                                 </td>
@@ -119,10 +169,15 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr>
+                            <tr id="linhaVazia">
                                 <td colspan="6" class="p-8 text-center text-zinc-600 italic">Nenhuma movimentação registrada no sistema.</td>
                             </tr>
                             @endforelse
+                            
+                            {{-- Feedback caso nenhum registro bata com os filtros selecionados --}}
+                            <tr id="feedbackFiltroVazio" style="display: none !important;">
+                                <td colspan="6" class="p-8 text-center text-zinc-600 italic">Nenhum registro encontrado para a combinação de filtros selecionada.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -130,6 +185,70 @@
         </section>
 
     </main>
+
+    {{-- ⚡ LÓGICA DO FILTRO E RECALCULO DE METRICAS EM JAVASCRIPT --}}
+    <script>
+        function filtrarTabela() {
+            const planoSelecionado = document.getElementById('filtroPlano').value.trim();
+            const mesSelecionado = document.getElementById('filtroMes').value.trim();
+            
+            const linhas = document.querySelectorAll('.linha-movimentacao');
+            const feedbackVazio = document.getElementById('feedbackFiltroVazio');
+            
+            // Variáveis de acumulação para os novos totais baseados nas linhas visíveis
+            let novoFaturamento = 0;
+            let novosAtivos = 0;
+            let novosCancelados = 0;
+            let algumaLinhaVisivel = false;
+
+            linhas.forEach(linha => {
+                const planoDaLinha = (linha.getAttribute('data-plano') || '').trim();
+                const mesDaLinha = (linha.getAttribute('data-mes') || '').trim();
+                
+                // Atributos de dados adicionais para somar as métricas
+                const status = linha.getAttribute('data-status');
+                const pagamento = linha.getAttribute('data-pagamento');
+                const preco = parseFloat(linha.getAttribute('data-preco')) || 0;
+
+                const batePlano = (planoSelecionado === 'TODOS' || planoDaLinha === planoSelecionado);
+                const bateMes = (mesSelecionado === 'TODOS' || mesDaLinha === mesSelecionado);
+
+                if (batePlano && bateMes) {
+                    linha.style.setProperty('display', 'table-row', 'important');
+                    algumaLinhaVisivel = true;
+
+                    // 🧮 Processa as métricas apenas dos itens que passaram pelo filtro
+                    if (pagamento === 'Pago') {
+                        novoFaturamento += preco;
+                    }
+
+                    if (status === 'Ativo') {
+                        novosAtivos++;
+                    } else if (status !== 'Inativo') { 
+                        // Se não for Ativo nem Pendente (Inativo), assume-se cancelamentos/vencidos do histórico
+                        novosCancelados++;
+                    }
+
+                } else {
+                    linha.style.setProperty('display', 'none', 'important');
+                }
+            });
+
+            // ⚡ Atualiza os elementos HTML dos cards na tela
+            document.getElementById('cardFaturamento').innerText = 'R$ ' + novoFaturamento.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('cardAtivos').innerText = novosAtivos;
+            document.getElementById('cardCancelados').innerText = novosCancelados;
+
+            // Gerencia o feedback visual de busca vazia
+            if (feedbackVazio) {
+                if (!algumaLinhaVisivel && linhas.length > 0) {
+                    feedbackVazio.style.setProperty('display', 'table-row', 'important');
+                } else {
+                    feedbackVazio.style.setProperty('display', 'none', 'important');
+                }
+            }
+        }
+    </script>
 
 </body>
 </html>

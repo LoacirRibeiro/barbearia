@@ -21,8 +21,7 @@ class BarbeiroCrudController extends CrudController
 
     /**
      * Configure the CrudPanel object. Apply settings to all operations.
-     * 
-     * @return void
+     * * @return void
      */
     public function setup()
     {
@@ -33,24 +32,28 @@ class BarbeiroCrudController extends CrudController
 
     /**
      * Define what happens when the List operation is loaded.
-     * 
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
+     * * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
      * @return void
      */
     protected function setupListOperation()
     {
-        CRUD::setFromDb(); // set columns from db columns.
+        CRUD::setFromDb(); // Define colunas automaticamente do banco de dados
 
-        /**
-         * Columns can be defined using the fluent syntax:
-         * - CRUD::column('price')->type('number');
-         */
+        // Customiza a exibição da coluna 'tipo' para mostrar nomes amigáveis em vez da string pura
+        CRUD::modifyColumn('tipo', [
+            'type'    => 'select_from_array',
+            'label'   => 'Cargo / Vínculo',
+            'options' => [
+                'colaborador'  => 'Colaborador',
+                'proprietario' => 'Sócio / Proprietário',
+                'gestor'       => 'Gerente / Gestor',
+            ]
+        ]);
     }
 
     /**
      * Define what happens when the Create operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-create
+     * * @see https://backpackforlaravel.com/docs/crud-operation-create
      * @return void
      */
     protected function setupCreateOperation()
@@ -58,10 +61,11 @@ class BarbeiroCrudController extends CrudController
         CRUD::setValidation(BarbeiroRequest::class);
         CRUD::setFromDb(); // Configura os campos automaticamente a partir do banco
 
-        // Remove o campo original 'foto' gerado como texto simples para evitar o conflito
+        // Remove os campos originais do setFromDb para evitar conflitos e inputs duplicados
         CRUD::removeField('foto');
+        CRUD::removeField('tipo');
 
-        // Adiciona novamente o campo 'foto', mas agora configurado de forma isolada e correta
+        // Adiciona novamente o campo 'foto', configurado de forma isolada e correta
         CRUD::addField([
             'label'      => "Foto do Barbeiro",
             'name'       => "foto",
@@ -69,13 +73,32 @@ class BarbeiroCrudController extends CrudController
             'upload'     => true,
             'disk'       => 'public', 
             'prefix'     => 'uploads/barbeiros/', 
+            'wrapper'    => [
+                'class' => 'form-group col-md-6'
+            ]
+        ]);
+
+        // Adiciona novamente o campo 'tipo' estilizado como um Dropdown de seleção
+        CRUD::addField([
+            'name'        => 'tipo',
+            'label'       => 'Tipo de Vínculo / Cargo',
+            'type'        => 'select_from_array',
+            'options'     => [
+                'colaborador'  => 'Colaborador (Comissão 50%)',
+                'proprietario' => 'Sócio / Proprietário (Comissão 100%)',
+                'gestor'       => 'Gerente / Gestor (Comissão 100%)',
+            ],
+            'allows_null' => false,
+            'default'     => 'colaborador',
+            'wrapper'     => [
+                'class' => 'form-group col-md-6'
+            ]
         ]);
     }
 
     /**
      * Define what happens when the Update operation is loaded.
-     * 
-     * @see https://backpackforlaravel.com/docs/crud-operation-update
+     * * @see https://backpackforlaravel.com/docs/crud-operation-update
      * @return void
      */
     protected function setupUpdateOperation()

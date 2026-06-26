@@ -36,41 +36,40 @@
                 <i class="la la-chart-bar text-base text-amber-500"></i> Ver Relatório
             </a> -->
 
-            {{-- BOTÃO DE ATALHO PARA O CONTROLE DE PLANOS/ASSINATURAS --}}
-            <a href="{{ route('admin.planos') }}" class="bg-zinc-900 border border-zinc-800 hover:border-emerald-500/50 text-zinc-300 hover:text-emerald-400 transition px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2">
+            {{-- BOTÃO: ASSINATURAS --}}
+            <a href="{{ route('admin.planos') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
                 <i class="la la-certificate text-base text-emerald-500"></i> Assinaturas
             </a>
-            
-            {{-- BOTÃO DE ATALHO PARA A TELA DE HORÁRIOS --}}
-            <a href="{{ route('admin.agenda') }}" class="bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-zinc-200 transition px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2">
+
+            {{-- BOTÃO: HORÁRIOS --}}
+            <a href="{{ route('admin.agenda') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
                 <i class="la la-clock text-base text-zinc-400"></i> Horários
             </a>
 
-            {{--  BOTÃO: EVOLUÇÃO MENSAL --}}
-            <a href="{{ route('admin.colaboradores.evolucao') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center gap-2 font-black uppercase tracking-wider text-pink-500 shadow-lg">
-                <i class="la la-line-chart text-lg"></i> EVOLUÇÃO MENSAL
+            {{-- BOTÃO: GRÁFICOS --}}
+            <a href="{{ route('admin.colaboradores.evolucao') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-pink-500 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
+                <i class="la la-line-chart text-base"></i> Gráficos
             </a>
 
             {{-- BOTÃO: GESTÃO DE COLABORADORES --}}
-            <a href="{{ route('admin.colaboradores') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
-                <i class="la la-users text-base text-amber-500"></i> GESTÃO DE COLABORADORES
+            <a href="{{ route('admin.colaboradores') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
+                <i class="la la-users text-base text-amber-500"></i> Colaboradores
             </a>
 
-            {{--  BOTÃO: RELATÓRIOS --}}
-            <a href="{{ route('admin.relatorio_mensal') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center gap-2 font-black uppercase tracking-wider text-amber-400 shadow-lg">
-                <i class="la la-chart-bar text-lg"></i> RELATÓRIOS
+            {{-- BOTÃO: RELATÓRIOS --}}
+            <a href="{{ route('admin.relatorio_mensal') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-amber-400 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
+                <i class="la la-chart-bar text-base"></i> Relatórios
             </a>
 
             {{-- BOTÃO: GERENCIAR ESTOQUE --}}
-            <a href="{{ route('admin.estoque') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
-                <i class="la la-box text-base text-amber-500"></i> GERENCIAR ESTOQUE
-            </a>
-            
-            {{--  BOTÃO: ABRIR CAIXA --}}
-            <a href="{{ route('admin.caixa') }}" class="text-xs bg-amber-500 hover:bg-amber-400 text-zinc-950 px-4 py-3 rounded-xl transition flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg shadow-amber-500/10">
-                <i class="la la-cash-register text-base"></i> CAIXA
+            <a href="{{ route('admin.estoque') }}" class="text-xs bg-zinc-900 hover:bg-zinc-800 text-zinc-200 border border-zinc-800 hover:border-zinc-700 px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg">
+                <i class="la la-box text-base text-amber-500"></i> Estoque
             </a>
 
+            {{-- BOTÃO DE DESTAQUE: CAIXA --}}
+            <a href="{{ route('admin.caixa') }}" class="text-xs bg-amber-500 hover:bg-amber-400 text-zinc-950 px-4 py-3 rounded-xl transition-all duration-200 flex items-center justify-center gap-2 font-black uppercase tracking-wider shadow-lg shadow-amber-500/10 hover:scale-[1.02]">
+                <i class="la la-cash-register text-base"></i> Caixa
+            </a>
         </div>
     </div>
 

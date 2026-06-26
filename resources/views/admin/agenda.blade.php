@@ -28,7 +28,7 @@
                 <a href="{{ route('admin.painel') }}" class="text-xs font-bold text-zinc-500 hover:text-amber-500 transition flex items-center gap-1 mb-2">
                     <i class="la la-arrow-left"></i> Voltar para o Painel Financeiro
                 </a>
-                <h1 class="text-2xl font-black tracking-tight">Controle de Agenda</h1>
+                <h1 class="text-xl font-black uppercase tracking-widest">Controle de <span class="text-amber-500">Agenda</span></h1>
                 <p class="text-xs text-zinc-500 mt-1">Visualizando atendimentos de: <b class="text-zinc-200">{{ $tituloData }}</b></p>
             </div>
         </header>

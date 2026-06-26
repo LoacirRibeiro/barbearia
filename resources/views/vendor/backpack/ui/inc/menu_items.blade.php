@@ -6,10 +6,11 @@
 </li>
 
 <x-backpack::menu-item title="Barbeiros" icon="la la-scissors" :link="backpack_url('barbeiro')" />
-<x-backpack::menu-item title="Clientes" icon="la la-users" :link="backpack_url('cliente')" />
-<x-backpack::menu-item title="Agendamentos" icon="la la-calendar" :link="backpack_url('agendamento')" />
+<!-- <x-backpack::menu-item title="Clientes" icon="la la-users" :link="backpack_url('cliente')" /> -->
+<!-- <x-backpack::menu-item title="Agendamentos" icon="la la-calendar" :link="backpack_url('agendamento')" /> -->
 <x-backpack::menu-item title="Serviços" icon="la la-concierge-bell" :link="backpack_url('servico')" />
-<x-backpack::menu-item title="Planos de Assinatura" icon="la la-id-card" :link="backpack_url('plano')" />
+<!-- <x-backpack::menu-item title="Planos de Assinatura" icon="la la-id-card" :link="backpack_url('plano')" /> -->
+<x-backpack::menu-item title="Produtos" icon="la la-question" :link="backpack_url('produto')" />
 
 <x-backpack::menu-dropdown title="Autenticação" icon="la la-lock">
     <x-backpack::menu-dropdown-item title="Usuários" icon="la la-user" :link="backpack_url('user')" />
