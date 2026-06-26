@@ -291,71 +291,104 @@ class AdminController extends Controller
     }
 
     public function visualizarRelatorio()
-{
-    $hoje = now()->format('Y-m-d');
+    {
+        $hoje = now()->format('Y-m-d');
 
-    $totalFaturado = DB::table('assinaturas')
-        ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
-        ->where('assinaturas.status_pagamento', 'Pago')
-        ->sum('planos.preco');
+        $totalFaturado = DB::table('assinaturas')
+            ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
+            ->where('assinaturas.status_pagamento', 'Pago')
+            ->sum('planos.preco');
 
-    $totalContratados = DB::table('assinaturas')
-        ->where('status', 'Ativo')
-        ->where('status_pagamento', 'Pago')
-        ->where(DB::raw('DATE(data_fim)'), '>=', $hoje)
-        ->count();
+        $totalContratados = DB::table('assinaturas')
+            ->where('status', 'Ativo')
+            ->where('status_pagamento', 'Pago')
+            ->where(DB::raw('DATE(data_fim)'), '>=', $hoje)
+            ->count();
 
-    // 🔥 CORRIGIDO: Agora conta TODOS os cancelados ou vencidos, independente de estar pendente ou não
-    $totalCancelados = DB::table('assinaturas')
-        ->where(function($query) use ($hoje) {
-            $query->where(DB::raw('DATE(data_fim)'), '<', $hoje)
-                  ->orWhere('status', 'Cancelado')
-                  ->orWhere('status', '!=', 'Ativo');
-        })
-        ->count();
+        // 🔥 CORRIGIDO: Agora conta TODOS os cancelados ou vencidos, independente de estar pendente ou não
+        $totalCancelados = DB::table('assinaturas')
+            ->where(function($query) use ($hoje) {
+                $query->where(DB::raw('DATE(data_fim)'), '<', $hoje)
+                    ->orWhere('status', 'Cancelado')
+                    ->orWhere('status', '!=', 'Ativo');
+            })
+            ->count();
 
-    $movimentacoes = DB::table('assinaturas')
-        ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
-        ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
-        ->select(
-            'clientes.nome as cliente_nome',
-            'planos.nome as nome_plano',
-            'planos.preco as preco_plano',
-            'assinaturas.status',
-            'assinaturas.status_pagamento',
-            'assinaturas.updated_at'
-        )
-        ->orderBy('assinaturas.updated_at', 'desc')
-        ->take(50)
-        ->get();
+        $movimentacoes = DB::table('assinaturas')
+            ->join('clientes', 'assinaturas.cliente_id', '=', 'clientes.id')
+            ->join('planos', 'assinaturas.plano_id', '=', 'planos.id')
+            ->select(
+                'clientes.nome as cliente_nome',
+                'planos.nome as nome_plano',
+                'planos.preco as preco_plano',
+                'assinaturas.status',
+                'assinaturas.status_pagamento',
+                'assinaturas.updated_at'
+            )
+            ->orderBy('assinaturas.updated_at', 'desc')
+            ->take(50)
+            ->get();
 
-    return view('admin.relatorios.planos', compact('totalFaturado', 'totalContratados', 'totalCancelados', 'movimentacoes'));
-}
+        return view('admin.relatorios.planos', compact('totalFaturado', 'totalContratados', 'totalCancelados', 'movimentacoes'));
+    }
 
     public function obterDetalhes($id)
     {
-        $assinatura = Assinatura::with(['plano', 'cliente'])->find($id);
+        try {
+            $assinatura = Assinatura::find($id);
 
-        if (!$assinatura) {
-            return response()->json(['erro' => 'Assinatura não encontrada'], 404);
+            if (!$assinatura) {
+                return response()->json(['erro' => 'Assinatura não encontrada.'], 404);
+            }
+
+            // 🚀 BUSCA CORRIGIDA COM INNER JOIN PARA PEGAR O NOME DO BARBEIRO E NOME DO SERVIÇO
+            $servicosUtilizados = DB::table('agendamentos')
+                ->join('barbeiros', 'agendamentos.barbeiro_id', '=', 'barbeiros.id')
+                ->where('agendamentos.cliente_id', $assinatura->cliente_id)
+                ->where('agendamentos.status', 'Concluído')
+                ->whereBetween(DB::raw('DATE(agendamentos.data_hora)'), [
+                    $assinatura->data_inicio, 
+                    $assinatura->data_fim
+                ])
+                ->select('agendamentos.servico', 'agendamentos.data_hora', 'barbeiros.nome as barbeiro_nome')
+                ->orderBy('agendamentos.data_hora', 'desc')
+                ->get()
+                ->map(function($agendamento) {
+                    return [
+                        'data' => \Carbon\Carbon::parse($agendamento->data_hora)->format('d/m/Y H:i'),
+                        'nome'         => $agendamento->servico, 
+                        'barbeiro'      => $agendamento->barbeiro_nome,
+                    ];
+                });
+
+            $planoNome = DB::table('planos')->where('id', $assinatura->plano_id)->value('nome') ?? 'Plano Não Identificado';
+            $clienteNome = DB::table('clientes')->where('id', $assinatura->cliente_id)->value('nome') ?? 'Cliente Removido';
+            $clienteEmail = DB::table('clientes')->where('id', $assinatura->cliente_id)->value('email') ?? 'Sem E-mail';
+            $clienteTelefone = DB::table('clientes')->where('id', $assinatura->cliente_id)->value('telefone') ?? 'Sem Telefone';
+
+            return response()->json([
+                'plano_nome'       => $planoNome,
+                'cliente_nome'     => $clienteNome,
+                'cliente_email'    => $clienteEmail,
+                'cliente_telefone' => $clienteTelefone,
+                'data_inicio'      => $assinatura->data_inicio,
+                'data_fim'         => $assinatura->data_fim,
+                'pagamentos'       => [
+                    [
+                        'referencia' => $assinatura->data_inicio ? Carbon::parse($assinatura->data_inicio)->format('m/Y') : now()->format('m/Y'),
+                        'forma'      => $assinatura->forma_pagamento ?? 'Não informada',
+                        'status'     => $assinatura->status_pagamento ?? 'Pendente',
+                    ]
+                ],
+                'servicos'         => $servicosUtilizados
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'erro' => 'Erro interno ao consultar o banco de dados.',
+                'detalhes_tecnicos' => $e->getMessage() 
+            ], 500);
         }
-
-        return response()->json([
-            'plano_nome'       => $assinatura->plano->nome ?? 'Plano não identificado',
-            'cliente_nome'     => $assinatura->cliente->nome ?? 'Cliente não cadastrado',
-            'cliente_email'    => $assinatura->cliente->email ?? 'Sem e-mail',
-            'cliente_telefone' => $assinatura->cliente->telefone ?? 'Não cadastrado',
-            'data_inicio'      => $assinatura->data_inicio,
-            'data_fim'         => $assinatura->data_fim,
-            'pagamentos'       => [
-                [
-                    'referencia' => Carbon::parse($assinatura->data_inicio)->format('m/Y'),
-                    'forma'      => $assinatura->forma_pagamento,
-                    'status'     => $assinatura->status_pagamento,
-                ]
-            ],
-            'servicos'         => []
-        ]);
     }
 
     public function caixaForm()

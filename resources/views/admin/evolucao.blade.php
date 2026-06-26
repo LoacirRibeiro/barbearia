@@ -39,6 +39,7 @@
             </button>
         </div>
 
+        {{-- ================= TAB MENSAL (DIÁRIA) ================= --}}
         <div id="conteudo-painel-mensal" class="space-y-6 hidden">
             <section class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
@@ -105,9 +106,34 @@
                         <canvas id="chartProdutosFaturamento"></canvas>
                     </div>
                 </div>
+
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
+                    <div>
+                        <h3 class="text-sm font-black text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+                            <i class="la la-id-card text-purple-500"></i> Novos Planos Assinados (Dia)
+                        </h3>
+                        <p class="text-[11px] text-zinc-500">Novas assinaturas recorrentes convertidas por dia.</p>
+                    </div>
+                    <div class="w-full bg-zinc-950/40 rounded-xl border border-zinc-800/50 p-2 h-[260px]">
+                        <canvas id="chartPlanosAssinadosMensal"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
+                    <div>
+                        <h3 class="text-sm font-black text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+                            <i class="la la-scissors text-amber-500"></i> Serviços Utilizados por Assinantes (Dia)
+                        </h3>
+                        <p class="text-[11px] text-zinc-500">Agendamentos concluídos utilizando pacotes ou assinaturas ativas.</p>
+                    </div>
+                    <div class="w-full bg-zinc-950/40 rounded-xl border border-zinc-800/50 p-2 h-[260px]">
+                        <canvas id="chartPlanosUsoMensal"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
+        {{-- ================= TAB ANUAL (MENSAL) ================= --}}
         <div id="conteudo-painel-anual" class="space-y-6 hidden">
             <section class="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
                 <form method="GET" action="{{ url()->current() }}" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
@@ -178,9 +204,34 @@
                         <canvas id="chartProdutosFaturamentoAnual"></canvas>
                     </div>
                 </div>
+
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
+                    <div>
+                        <h3 class="text-sm font-black text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+                            <i class="la la-id-card text-purple-500"></i> Novos Planos Assinados (Ano)
+                        </h3>
+                        <p class="text-[11px] text-zinc-500">Quantidade acumulada de novos assinantes adquiridos por mês.</p>
+                    </div>
+                    <div class="w-full bg-zinc-950/40 rounded-xl border border-zinc-800/50 p-2 h-[260px]">
+                        <canvas id="chartPlanosAssinadosAnual"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
+                    <div>
+                        <h3 class="text-sm font-black text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+                            <i class="la la-scissors text-amber-500"></i> Serviços Utilizados por Assinantes (Ano)
+                        </h3>
+                        <p class="text-[11px] text-zinc-500">Histórico de uso dos planos pelos clientes fixos mês a mês.</p>
+                    </div>
+                    <div class="w-full bg-zinc-950/40 rounded-xl border border-zinc-800/50 p-2 h-[260px]">
+                        <canvas id="chartPlanosUsoAnual"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
 
+        {{-- ================= SEÇÃO GERAL DE PROFISSIONAIS ================= --}}
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 space-y-3">
                 <div>
@@ -210,12 +261,17 @@
     </main>
 
     <script>
+        // Carregamento de dados existentes
         const barbeirosRelatorioData = @json($barbeirosRelatorioData);
         const produtosGerais = @json($produtosGerais ?? []);
+        
+        // 🚀 RECEBIMENTO DOS NOVOS ARRAYS DO BACKEND (Adicione na sua Query do Controller se necessário)
+        const dadosAssinaturas = @json($assinaturasGerais ?? []); 
+        const dadosAgendamentosPlanos = @json($agendamentosPlanosGerais ?? []);
+
         const nomesMeses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
         const chartInstances = {};
 
-        // Configurações de Estado da View (Filtros Ativos)
         const visaoInicial = "{{ request('tipo_visao', 'mensal') }}";
         const stringFiltro = "{{ request('mes_ano_filtro', date('m/Y')) }}";
         const [mesAtivo, anoAtivo] = stringFiltro.split('/').map(Number);
@@ -224,7 +280,6 @@
         const totalDiasNoMes = new Date(anoAtivo, mesAtivo, 0).getDate();
         const labelsDias = Array.from({ length: totalDiasNoMes }, (_, i) => (i + 1).toString());
 
-        // 🎨 Configuração Base Reutilizável (Estilo Premium da Foto 1 - Força a exibição de todas as linhas e marcas)
         const opcoesGraficoBase = {
             responsive: true,
             maintainAspectRatio: false,
@@ -234,7 +289,7 @@
                     ticks: { 
                         color: '#71717a', 
                         font: { size: 9, weight: 'bold' },
-                        autoSkip: false, // 🔴 Corrige comportamento da Foto 2 (Força exibir 1, 2, 3...)
+                        autoSkip: false,
                         maxRotation: 0,
                         minRotation: 0
                     } 
@@ -249,7 +304,6 @@
         };
 
         document.addEventListener("DOMContentLoaded", function() {
-            // Sincronização dos Inputs de Formulários
             const inputMonth = document.getElementById('mes_ano_input');
             inputMonth.value = `${anoAtivo}-${mesAtivo.toString().padStart(2, '0')}`;
             inputMonth.addEventListener('change', function() {
@@ -257,16 +311,13 @@
                 document.getElementById('mes_ano_filtro').value = `${month}/${year}`;
             });
 
-            // Ativa a Aba Inicial Solicitada
             alternarVisaoPainel(visaoInicial);
 
-            // Executa as Renderizações Separadas
             renderizarGraficosDiarios();
             renderizarGraficosAnuais();
             renderizarGraficosGlobaisProfissionais();
         });
 
-        // Lógica de Chaveamento Visual das Abas
         function alternarVisaoPainel(tipo) {
             document.getElementById('conteudo-painel-mensal').classList.add('hidden');
             document.getElementById('conteudo-painel-anual').classList.add('hidden');
@@ -290,6 +341,10 @@
             const faturamentoPorDia = Array(totalDiasNoMes).fill(0);
             const qtdProdutosPorDia = Array(totalDiasNoMes).fill(0);
             const fatProdutosPorDia = Array(totalDiasNoMes).fill(0);
+            
+            // Novos contadores diários
+            const planosAssinadosPorDia = Array(totalDiasNoMes).fill(0);
+            const usoPlanosPorDia = Array(totalDiasNoMes).fill(0);
 
             barbeirosRelatorioData.forEach(b => {
                 (b.detalhes_servicos || []).forEach(s => {
@@ -298,6 +353,11 @@
                         if (d.getMonth() + 1 === mesAtivo && d.getFullYear() === anoAtivo) {
                             atendimentosPorDia[d.getDate() - 1]++;
                             faturamentoPorDia[d.getDate() - 1] += Number(s.preco || 0);
+                            
+                            // Se o seu objeto 's' contiver alguma flag identificando plano, processe aqui:
+                            if(s.usou_plano || s.tipo_pagamento === 'Plano/Assinatura') {
+                                usoPlanosPorDia[d.getDate() - 1]++;
+                            }
                         }
                     }
                 });
@@ -317,6 +377,27 @@
                 }
             });
 
+            // Processamento estruturado das assinaturas vendidas (Mês ativo)
+            dadosAssinaturas.forEach(sub => {
+                const dataRef = sub.created_at || sub.data_inicio;
+                if (dataRef) {
+                    const d = new Date(dataRef);
+                    if (d.getMonth() + 1 === mesAtivo && d.getFullYear() === anoAtivo) {
+                        planosAssinadosPorDia[d.getDate() - 1]++;
+                    }
+                }
+            });
+
+            // Processamento estruturado do uso histórico de planos se vier em array próprio
+            dadosAgendamentosPlanos.forEach(ag => {
+                if (ag.data_hora || ag.created_at) {
+                    const d = new Date(ag.data_hora || ag.created_at);
+                    if (d.getMonth() + 1 === mesAtivo && d.getFullYear() === anoAtivo) {
+                        usoPlanosPorDia[d.getDate() - 1]++;
+                    }
+                }
+            });
+
             // Grafico 1: Atendimentos Diários
             new Chart(document.getElementById('chartAtendimentosMensais'), {
                 type: 'bar',
@@ -324,15 +405,13 @@
                 options: opcoesGraficoBase
             });
 
-            // Grafico 2: Faturamento Diário Serviços (Suave com Curvas da Foto 1)
+            // Grafico 2: Faturamento Diário Serviços
             new Chart(document.getElementById('chartFaturamentoMensal'), {
                 type: 'line',
                 data: { labels: labelsDias, datasets: [{ data: faturamentoPorDia, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.06)', borderWidth: 3, tension: 0.3, fill: true, pointRadius: 3, pointBackgroundColor: '#10b981' }] },
                 options: {
                     ...opcoesGraficoBase,
-                    plugins: {
-                        tooltip: { callbacks: { label: c => ' Receita: ' + c.parsed.y.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) } }
-                    }
+                    plugins: { tooltip: { callbacks: { label: c => ' Receita: ' + c.parsed.y.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) } } }
                 }
             });
 
@@ -349,6 +428,20 @@
                 data: { labels: labelsDias, datasets: [{ data: fatProdutosPorDia, borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.06)', borderWidth: 3, tension: 0.3, fill: true, pointRadius: 3, pointBackgroundColor: '#06b6d4' }] },
                 options: opcoesGraficoBase
             });
+
+            // 🔥 NOVO Gráfico 5: Planos assinados no Mês (Roxo)
+            new Chart(document.getElementById('chartPlanosAssinadosMensal'), {
+                type: 'bar',
+                data: { labels: labelsDias, datasets: [{ data: planosAssinadosPorDia, backgroundColor: 'rgba(147, 51, 234, 0.2)', borderColor: '#9333ea', borderWidth: 2, borderRadius: 4 }] },
+                options: opcoesGraficoBase
+            });
+
+            // 🔥 NOVO Gráfico 6: Uso do Plano no Mês (Âmbar/Dourado Curva)
+            new Chart(document.getElementById('chartPlanosUsoMensal'), {
+                type: 'line',
+                data: { labels: labelsDias, datasets: [{ data: usoPlanosPorDia, borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.06)', borderWidth: 3, tension: 0.3, fill: true, pointRadius: 3, pointBackgroundColor: '#f59e0b' }] },
+                options: opcoesGraficoBase
+            });
         }
 
         // =========================================================
@@ -359,6 +452,10 @@
             const faturamentoPorMes = Array(12).fill(0);
             const qtdProdutosPorMes = Array(12).fill(0);
             const fatProdutosPorMes = Array(12).fill(0);
+            
+            // Novos contadores anuais
+            const planosAssinadosPorMes = Array(12).fill(0);
+            const usoPlanosPorMes = Array(12).fill(0);
 
             barbeirosRelatorioData.forEach(b => {
                 (b.detalhes_servicos || []).forEach(s => {
@@ -367,6 +464,10 @@
                         if (d.getFullYear().toString() === anoFiltro) {
                             atendimentosPorMes[d.getMonth()]++;
                             faturamentoPorMes[d.getMonth()] += Number(s.preco || 0);
+                            
+                            if(s.usou_plano || s.tipo_pagamento === 'Plano/Assinatura') {
+                                usoPlanosPorMes[d.getMonth()]++;
+                            }
                         }
                     }
                 });
@@ -386,8 +487,27 @@
                 }
             });
 
+            dadosAssinaturas.forEach(sub => {
+                const dataRef = sub.created_at || sub.data_inicio;
+                if (dataRef) {
+                    const d = new Date(dataRef);
+                    if (d.getFullYear().toString() === anoFiltro) {
+                        planosAssinadosPorMes[d.getMonth()]++;
+                    }
+                }
+            });
+
+            dadosAgendamentosPlanos.forEach(ag => {
+                if (ag.data_hora || ag.created_at) {
+                    const d = new Date(ag.data_hora || ag.created_at);
+                    if (d.getFullYear().toString() === anoFiltro) {
+                        usoPlanosPorMes[d.getMonth()]++;
+                    }
+                }
+            });
+
             const opcoesAnuais = JSON.parse(JSON.stringify(opcoesGraficoBase));
-            opcoesAnuais.scales.x.ticks.autoSkip = true; // Para 12 itens o ChartJS distribui sem quebrar
+            opcoesAnuais.scales.x.ticks.autoSkip = true;
 
             new Chart(document.getElementById('chartAtendimentosAnuais'), {
                 type: 'bar',
@@ -410,6 +530,20 @@
             new Chart(document.getElementById('chartProdutosFaturamentoAnual'), {
                 type: 'line',
                 data: { labels: nomesMeses, datasets: [{ data: fatProdutosPorMes, borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.06)', borderWidth: 3, tension: 0.3, fill: true, pointRadius: 4, pointBackgroundColor: '#06b6d4' }] },
+                options: opcoesAnuais
+            });
+
+            // 🔥 NOVO Gráfico 7: Planos Assinados no Ano (Roxo)
+            new Chart(document.getElementById('chartPlanosAssinadosAnual'), {
+                type: 'bar',
+                data: { labels: nomesMeses, datasets: [{ data: planosAssinadosPorMes, backgroundColor: 'rgba(147, 51, 234, 0.2)', borderColor: '#9333ea', borderWidth: 2, borderRadius: 4 }] },
+                options: opcoesAnuais
+            });
+
+            // 🔥 NOVO Gráfico 8: Uso de Planos no Ano (Âmbar Curva)
+            new Chart(document.getElementById('chartPlanosUsoAnual'), {
+                type: 'line',
+                data: { labels: nomesMeses, datasets: [{ data: usoPlanosPorMes, borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.06)', borderWidth: 3, tension: 0.3, fill: true, pointRadius: 4, pointBackgroundColor: '#f59e0b' }] },
                 options: opcoesAnuais
             });
         }

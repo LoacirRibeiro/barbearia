@@ -187,34 +187,59 @@ class PainelController extends Controller
      * GRÁFICO: Evolução Mensal Comparativa de Atendimentos
      */
     public function evolucao(Request $request)
-    {
-        $mesAno = $request->get('mes_ano_filtro', date('m/Y'));
-        [$mesFiltro, $anoFiltro] = explode('/', $mesAno);
+{
+    $mesAno = $request->get('mes_ano_filtro', date('m/Y'));
+    [$mesFiltro, $anoFiltro] = explode('/', $mesAno);
 
-        $barbeiros = Barbeiro::all();
-        $barbeirosRelatorioData = [];
+    $barbeiros = Barbeiro::all();
+    $barbeirosRelatorioData = [];
 
-        foreach ($barbeiros as $barbeiro) {
-            $detalhesServicos = ServicoRealizado::where('barbeiro_id', $barbeiro->id)
-                ->whereMonth('created_at', $mesFiltro)
-                ->whereYear('created_at', $anoFiltro)
-                ->select('id', 'created_at', 'preco') 
-                ->get();
-
-            $barbeirosRelatorioData[] = [
-                'id'                => $barbeiro->id,
-                'nome'              => $barbeiro->nome ?? $barbeiro->name,
-                'detalhes_servicos' => $detalhesServicos
-            ];
-        }
-
-        $produtosGerais = Caixa::with('itens')
+    foreach ($barbeiros as $barbeiro) {
+        $detalhesServicos = ServicoRealizado::where('barbeiro_id', $barbeiro->id)
             ->whereMonth('created_at', $mesFiltro)
             ->whereYear('created_at', $anoFiltro)
-            ->whereHas('itens', function($query) {
-                $query->where('tipo', 'produto');
-            })->get();
+            ->select('id', 'created_at', 'preco') 
+            ->get();
 
-        return view('admin.evolucao', compact('barbeirosRelatorioData', 'produtosGerais'));
+        $barbeirosRelatorioData[] = [
+            'id'                => $barbeiro->id,
+            'nome'              => $barbeiro->nome ?? $barbeiro->name,
+            'detalhes_servicos' => $detalhesServicos
+        ];
     }
+
+    $produtosGerais = Caixa::with('itens')
+        ->whereMonth('created_at', $mesFiltro)
+        ->whereYear('created_at', $anoFiltro)
+        ->whereHas('itens', function($query) {
+            $query->where('tipo', 'produto');
+        })->get();
+
+    // 🚀 1. NOVOS PLANOS: Busca na tabela 'assinaturas' (plural)
+    $assinaturasGerais = \DB::table('assinaturas')
+        ->whereMonth('created_at', $mesFiltro)
+        ->whereYear('created_at', $anoFiltro)
+        ->select('created_at', 'data_inicio')
+        ->get();
+
+    // 🚀 2. USO DE PLANO: Corrigido para 'agendamentos' e 'assinaturas' no plural 🔥
+    $agendamentosPlanosGerais = \DB::table('agendamentos as a')
+        ->join('assinaturas as as', function($join) {
+            $join->on('a.cliente_id', '=', 'as.cliente_id')
+                ->whereRaw('a.data_hora BETWEEN as.data_inicio AND as.data_fim')
+                ->where('as.status', '=', 'Ativo');
+        })
+        ->whereMonth('a.data_hora', $mesFiltro)
+        ->whereYear('a.data_hora', $anoFiltro)
+        ->where('a.status', 'Concluído')
+        ->select('a.data_hora as created_at')
+        ->get();
+
+    return view('admin.evolucao', compact(
+        'barbeirosRelatorioData', 
+        'produtosGerais', 
+        'assinaturasGerais', 
+        'agendamentosPlanosGerais'
+    ));
+}
 }
